@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Progressively Improving a SQL Query</title>
+  <meta name="author" content="jeffmax">
+
+
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="http://jeffmax.io/favicon.png" rel="icon">
+  <link href="http://jeffmax.io/theme/css/main.css" media="screen, projection"
+        rel="stylesheet" type="text/css">
+  <script src="http://jeffmax.io/theme/js/modernizr-2.0.js"></script>
+  <script src="http://jeffmax.io/theme/js/ender.js"></script>
+  <script src="http://jeffmax.io/theme/js/octopress.js" type="text/javascript"></script>
+
+  <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic"
+        rel="stylesheet" type="text/css">
+  <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic"
+        rel="stylesheet" type="text/css">
+</head>
+
+<body>
+  <header role="banner"><hgroup>
+  <h1><a href="http://jeffmax.io/">jeffmax's blog</a></h1>
+</hgroup></header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+</ul>
+
+
+
+<ul class="main-navigation">
+    <li class="active">
+    <a href="http://jeffmax.io/category/ios.html">Ios</a>
+    </li>
+</ul></nav>
+  <div id="main">
+    <div id="content">
+<div>
+  <article class="hentry" role="article">
+<header>
+      <h1 class="entry-title">Progressively Improving a SQL Query</h1>
+      <p class="meta"><time datetime="2011-05-20T00:00:00" pubdate>Fri 20 May 2011</time></p>
+</header>
+
+  <div class="entry-content"><p>A note on this post: I will be discussing the details to the solution of a problem that was solved by a co-worker of mine. See his blog, <a href="http://devel.io//">The Devel</a>.</p>
+<p>SQL has always been a bit of a mystery to me. To date, my most complicated queries have been fairly simple table joins. Recently I stumbled upon a problem that I would have traditionally solved by doing two or three separate dynamically generated queries executed from a programming language like Python. My mercifully patient co-workers explained the problem could be solved with one query that uses a few more advanced SQL concepts, including:</p>
+<ol>
+<li>a subquery</li>
+<li>GROUP BY</li>
+<li>HAVING</li>
+<li>ORDER BY</li>
+</ol>
+<p>I can see versions of this problem (described below) coming up in other domains. I am going to walk through the solution in this post, from the most naive implementation up through a single query that solves the entire problem. Hopefully it will be a relatable guide to using some of SQL's interesting features. I am also posting a sample <a href="http://www.sqlite.org/">SQLite</a> database that you can download and play with while working through the post. If you are not familiar with SQLite, it is a simple, server-less SQL database. It is very widely used and often embedded within other products (it might be running in your web browser). It is perfect for learning SQL because there is virtually no setup and it is almost impossible to break anything.</p>
+<p>To get started, download the <a href="http://www.sqlite.org/download.html">SQLite executable </a> and the <a href="https://github.com/jeffmax/blog/blob/master/movies.db?raw=true">movies.db</a> file.
+Once SQLite is installed, if you open a console and navigate to the location of your downloaded movies.db file and type:</p>
+<div class="highlight"><pre><span class="n">sqlite3</span> <span class="n">movies</span><span class="p">.</span><span class="n">db</span>
+</pre></div>
+
+
+<p>you will be at a SQL prompt ready to go.</p>
+<h1>Slightly Contrived Problem</h1>
+<p>You are in charge of assigning movies to movie reviewers. You have a list of movies, and a list of reviews tagged with the reviewer. When a reviewer asks for an assignment, you must assign him or her a movie that:</p>
+<ol>
+<li>They have not yet reviewed.</li>
+<li>Has only been reviewed by at most N other reviewers.</li>
+<li>Of the movies that fit criteria 1 and 2, each movie is just as likely to be assigned.</li>
+</ol>
+<p>In summary, if we take N to be 1, you just want every movie to be reviewed by 1 reviewer, and you want every movie to have an equal chance of being reviewed.</p>
+<p>For the purpose of this post, your data is stored in a database with the following two tables:</p>
+<h3>Movies Table</h3>
+<table class="table table-bordered">
+<tr><td>id</td><td>name</td><td>length</td><td>year</td></tr>
+<tr><td>1</td><td>The Shawshank Redemption</td><td>2.5</td><td>1994</td></tr>
+<tr><td>2</td><td>The Dark Knight</td><td>3</td><td>2008</td></tr>
+<tr><td>3</td><td>Fight Club</td><td>2</td><td>1999</td></tr>
+<tr><td>4</td><td>Goodfellas</td><td>2</td><td>1990</td></tr>
+<tr><td>5</td><td>Casablanca</td><td>2</td><td>1942</td></tr>
+</table>
+
+<h3>Reviews Table</h3>
+<table class="table table-bordered">
+<tr><td>id</td><td>reviewer</td><td>rating</td><td>movie</td></tr>
+<tr><td>1</td><td>Grumpy</td><td>0</td><td>4</td></tr>
+<tr><td>2</td><td>Happy</td><td>5</td><td>2</td></tr>
+<tr><td>3</td><td>Sleepy</td><td>?</td><td>3</td></tr>
+<tr><td>4</td><td>Martin</td><td>5</td><td>4</td></tr>
+</table>
+
+<h2>How I would solve this with brute-force, mediocre SQL</h2>
+<p>Sleepy wants his next assignment.
+The simplest solution to the problem is to:</p>
+<ol>
+<li>Do a select on the reviews table for all reviews by Sleepy.</li>
+<li>Do a select on the movies table, selecting all movies whose ids are not in the list created in step 1.</li>
+<li>Iterate through the list of movies from step 2, querying the review table for reviews for that movie. Then choose (at random) a movie whose number of reviews is &lt; N.</li>
+</ol>
+<p>Lets work through this at the SQLite prompt:</p>
+<div class="highlight"><pre><span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">reviewer</span><span class="o">=</span><span class="s1">&#39;Sleepy&#39;</span><span class="p">;</span>
+<span class="mi">3</span><span class="o">|</span><span class="n">Sleepy</span><span class="o">|?|</span><span class="mi">3</span>
+</pre></div>
+
+
+<p>Then generate a SQL query on the movies table to grab all the movies Sleepy has not yet reviewed.</p>
+<div class="highlight"><pre><span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="k">WHERE</span> <span class="n">id</span> <span class="k">NOT</span> <span class="k">IN</span> <span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+<span class="mi">1</span><span class="o">|</span><span class="n">The</span> <span class="n">Shawshank</span> <span class="n">Redemption</span><span class="o">|</span><span class="mi">2</span><span class="p">.</span><span class="mi">5</span> <span class="n">hours</span><span class="o">|</span><span class="mi">1994</span>
+<span class="mi">2</span><span class="o">|</span><span class="n">The</span> <span class="n">Dark</span> <span class="n">Knight</span><span class="o">|</span><span class="mi">3</span> <span class="n">hours</span><span class="o">|</span><span class="mi">2008</span>
+<span class="mi">4</span><span class="o">|</span><span class="n">Goodfellas</span><span class="o">|</span><span class="mi">2</span> <span class="n">hours</span><span class="o">|</span><span class="mi">1990</span>
+<span class="mi">5</span><span class="o">|</span><span class="n">Casablanca</span><span class="o">|</span><span class="mi">2</span> <span class="n">hours</span><span class="o">|</span><span class="mi">1942</span>
+</pre></div>
+
+
+<p>Finally, iterate through each movie returned in the previous query, constructing a query to count the number of reviews for that movie.</p>
+<div class="highlight"><pre><span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">movie</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="mi">0</span>
+<span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">movie</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+<span class="mi">1</span>
+<span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">movie</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+<span class="mi">2</span>
+<span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">movie</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="mi">0</span>
+</pre></div>
+
+
+<p>Shawshank had no reviews, The Dark Knight had 1 review, Goodfellas had 2 reviews, and Casablanca had no reviews. If N was equal to 1, randomly choose between Shawshank and Casablanca, assigning one of them to Sleepy. All done!</p>
+<h2>How can this be done better?</h2>
+<p>The first step in improving this process is to introduce a subquery.
+We can essentially do our first two queries above in one call to the database like this:</p>
+<div class="highlight"><pre><span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="n">id</span><span class="p">,</span> <span class="n">name</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="k">WHERE</span> <span class="n">id</span> <span class="k">NOT</span> <span class="k">IN</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">movie</span> <span class="k">FROM</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">reviewer</span><span class="o">=</span><span class="s1">&#39;Sleepy&#39;</span><span class="p">);</span>
+<span class="mi">1</span><span class="o">|</span><span class="n">The</span> <span class="n">Shawshank</span> <span class="n">Redemption</span>
+<span class="mi">2</span><span class="o">|</span><span class="n">The</span> <span class="n">Dark</span> <span class="n">Knight</span>
+<span class="mi">4</span><span class="o">|</span><span class="n">Goodfellas</span>
+<span class="mi">5</span><span class="o">|</span><span class="n">Casablanca</span>
+</pre></div>
+
+
+<p>We now know the names of the movies that Sleepy has not reviewed. We could now just do step 3 above, iterating through each movie to find out how many reviews we have for each one.</p>
+<h2>But we can do better</h2>
+<p>Let's join these two tables.</p>
+<p>{% blockquote %}
+One thing I found confusing when going from trivial SQL queries to more complex problems was that by doing a SELECT from more than one table using a WHERE clause, you are doing an implicit inner join. There are quite a few different types of joins that you can actually perform. I have found the following two links helpful:
+<a href="http://www.codinghorror.com/blog/2007/10/a-visual-explanation-of-sql-joins.html">Jeff Atwood explains SQL joins using Venn Diagrams</a>
+and
+<a href="http://en.wikipedia.org/wiki/Join_(SQL)">Wikipedia takes a crack at SQL join types</a>
+So for example, if we wanted to do an inner join on our two tables, one way would be with the following query:</p>
+<div class="highlight"><pre><span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">movies</span><span class="p">,</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">movies</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">reviews</span><span class="p">.</span><span class="n">movie</span><span class="p">;</span>
+<span class="mi">4</span><span class="o">|</span><span class="n">Goodfellas</span><span class="o">|</span><span class="mi">2</span> <span class="n">hours</span><span class="o">|</span><span class="mi">1990</span><span class="o">|</span><span class="mi">1</span><span class="o">|</span><span class="n">Grumpy</span><span class="o">|</span><span class="mi">0</span><span class="o">|</span><span class="mi">4</span>
+<span class="mi">2</span><span class="o">|</span><span class="n">The</span> <span class="n">Dark</span> <span class="n">Knight</span><span class="o">|</span><span class="mi">3</span> <span class="n">hours</span><span class="o">|</span><span class="mi">2008</span><span class="o">|</span><span class="mi">2</span><span class="o">|</span><span class="n">Happy</span><span class="o">|</span><span class="mi">5</span><span class="o">|</span><span class="mi">2</span>
+<span class="mi">3</span><span class="o">|</span><span class="n">Fight</span> <span class="n">Club</span><span class="o">|</span><span class="mi">2</span> <span class="n">hours</span><span class="o">|</span><span class="mi">1999</span><span class="o">|</span><span class="mi">3</span><span class="o">|</span><span class="n">Sleepy</span><span class="o">|?|</span><span class="mi">3</span>
+<span class="mi">4</span><span class="o">|</span><span class="n">Goodfellas</span><span class="o">|</span><span class="mi">2</span> <span class="n">hours</span><span class="o">|</span><span class="mi">1990</span><span class="o">|</span><span class="mi">4</span><span class="o">|</span><span class="n">Martin</span><span class="o">|</span><span class="mi">5</span><span class="o">|</span><span class="mi">4</span>
+</pre></div>
+
+
+<p>Here we get a row for each movie review. If there is no review, the movie is not showing up at all. This is because it did an implicit inner join. Other types of joins would produce different results.
+The same query using the more explicit syntax:</p>
+<div class="highlight"><pre><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">reviews</span> <span class="k">ON</span> <span class="p">(</span><span class="n">movies</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">reviews</span><span class="p">.</span><span class="n">movie</span><span class="p">);</span>
+<span class="mi">4</span><span class="o">|</span><span class="n">Goodfellas</span><span class="o">|</span><span class="mi">2</span> <span class="n">hours</span><span class="o">|</span><span class="mi">1990</span><span class="o">|</span><span class="mi">1</span><span class="o">|</span><span class="n">Grumpy</span><span class="o">|</span><span class="mi">0</span><span class="o">|</span><span class="mi">4</span>
+<span class="mi">2</span><span class="o">|</span><span class="n">The</span> <span class="n">Dark</span> <span class="n">Knight</span><span class="o">|</span><span class="mi">3</span> <span class="n">hours</span><span class="o">|</span><span class="mi">2008</span><span class="o">|</span><span class="mi">2</span><span class="o">|</span><span class="n">Happy</span><span class="o">|</span><span class="mi">5</span><span class="o">|</span><span class="mi">2</span>
+<span class="mi">3</span><span class="o">|</span><span class="n">Fight</span> <span class="n">Club</span><span class="o">|</span><span class="mi">2</span> <span class="n">hours</span><span class="o">|</span><span class="mi">1999</span><span class="o">|</span><span class="mi">3</span><span class="o">|</span><span class="n">Sleepy</span><span class="o">|?|</span><span class="mi">3</span>
+<span class="mi">4</span><span class="o">|</span><span class="n">Goodfellas</span><span class="o">|</span><span class="mi">2</span> <span class="n">hours</span><span class="o">|</span><span class="mi">1990</span><span class="o">|</span><span class="mi">4</span><span class="o">|</span><span class="n">Martin</span><span class="o">|</span><span class="mi">5</span><span class="o">|</span><span class="mi">4</span>
+</pre></div>
+
+
+<p _="%" endblockquote="endblockquote">For clarity's sake, I will use the more explicit syntax from here on out.</p>
+<p>So if we join these two tables on the movie id, and select only the fields we actually care about, we could write the following query:</p>
+<div class="highlight"><pre><span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="n">movies</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">reviews</span><span class="p">.</span><span class="n">reviewer</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">reviews</span> <span class="k">ON</span> <span class="p">(</span><span class="n">movies</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">reviews</span><span class="p">.</span><span class="n">movie</span><span class="p">);</span>
+<span class="n">Goodfellas</span><span class="o">|</span><span class="n">Grumpy</span>
+<span class="n">The</span> <span class="n">Dark</span> <span class="n">Knight</span><span class="o">|</span><span class="n">Happy</span>
+<span class="n">Fight</span> <span class="n">Club</span><span class="o">|</span><span class="n">Sleepy</span>
+<span class="n">Goodfellas</span><span class="o">|</span><span class="n">Martin</span>
+</pre></div>
+
+
+<p>{% blockquote %}
+The above query might also be written like this</p>
+<div class="highlight"><pre><span class="k">SELECT</span> <span class="n">M</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">R</span><span class="p">.</span><span class="n">reviewer</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="n">M</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">reviews</span> <span class="n">R</span> <span class="k">ON</span> <span class="p">(</span><span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">R</span><span class="p">.</span><span class="n">movie</span><span class="p">);</span>
+</pre></div>
+
+
+<p>{% endblockquote %}</p>
+<p>Just look this over for a second and it should become clear that the M and R following the table names are aliases. Everywhere else in the query that alias is used to refer to its associated table name. You will probably see this used in the SQL wild.</p>
+<p>So we have joined our two tables and grabbed only the information we really cared about. If we add back our subquery, we get this:</p>
+<div class="highlight"><pre><span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="n">M</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">R</span><span class="p">.</span><span class="n">reviewer</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="n">M</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">reviews</span> <span class="n">R</span> <span class="k">ON</span> <span class="p">(</span><span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">R</span><span class="p">.</span><span class="n">movie</span><span class="p">)</span> <span class="k">WHERE</span> <span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="k">NOT</span> <span class="k">IN</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">movie</span> <span class="k">FROM</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">reviews</span><span class="p">.</span><span class="n">reviewer</span> <span class="o">=</span> <span class="s1">&#39;Sleepy&#39;</span><span class="p">);</span>
+<span class="n">Goodfellas</span><span class="o">|</span><span class="n">Grumpy</span>
+<span class="n">The</span> <span class="n">Dark</span> <span class="n">Knight</span><span class="o">|</span><span class="n">Happy</span>
+<span class="n">Goodfellas</span><span class="o">|</span><span class="n">Martin</span>
+</pre></div>
+
+
+<p>We now have one row for each movie not reviewed by Sleepy. We could almost solve this problem now without hitting the database again except for the fact that we don't have any information about movies that have no reviews. From here we could do a SELECT * on the movies table, and we would have enough information to programatically figure out what movie to assign Sleepy.</p>
+<h2>But we don't have to hit the database twice</h2>
+<p>We can fix this by changing our join type. If you refer to the links above on join types, you will see there is a "left outer join". This will do a join on the tables on the value specified, but even if there is no matching table on the right side of the join, we will still get a row of data from the left table. Lets try it</p>
+<div class="highlight"><pre><span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="n">M</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">R</span><span class="p">.</span><span class="n">reviewer</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="n">M</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">reviews</span> <span class="n">R</span> <span class="k">ON</span> <span class="p">(</span><span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">R</span><span class="p">.</span><span class="n">movie</span><span class="p">)</span> <span class="k">WHERE</span> <span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="k">NOT</span> <span class="k">IN</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">movie</span> <span class="k">FROM</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">reviews</span><span class="p">.</span><span class="n">reviewer</span> <span class="o">=</span> <span class="s1">&#39;Sleepy&#39;</span><span class="p">);</span>
+<span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="n">M</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">R</span><span class="p">.</span><span class="n">reviewer</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="n">M</span> <span class="k">LEFT</span> <span class="k">OUTER</span> <span class="k">JOIN</span> <span class="n">reviews</span> <span class="n">R</span> <span class="k">ON</span> <span class="p">(</span><span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">R</span><span class="p">.</span><span class="n">movie</span><span class="p">)</span> <span class="k">WHERE</span> <span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="k">NOT</span> <span class="k">IN</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">movie</span> <span class="k">FROM</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">reviews</span><span class="p">.</span><span class="n">reviewer</span> <span class="o">=</span> <span class="s1">&#39;Sleepy&#39;</span><span class="p">)</span> <span class="p">;</span>
+<span class="n">The</span> <span class="n">Shawshank</span> <span class="n">Redemption</span><span class="o">|</span>
+<span class="n">The</span> <span class="n">Dark</span> <span class="n">Knight</span><span class="o">|</span><span class="n">Happy</span>
+<span class="n">Goodfellas</span><span class="o">|</span><span class="n">Grumpy</span>
+<span class="n">Goodfellas</span><span class="o">|</span><span class="n">Martin</span>
+<span class="n">Casablanca</span><span class="o">|</span>
+</pre></div>
+
+
+<p>The results are exactly the same as above except that we have a row for Shawshank and Casablanca with no corresponding reviewer. We now have enough information to programatically find a movie for Sleepy to review.</p>
+<p>Can we make the database do that too?</p>
+<h2>Yes</h2>
+<p>We can use COUNT, GROUP BY, HAVING, ORDER BY, and a database dependent RANDOM() function to have the database return just the name of a movie Sleepy should review.</p>
+<p>Lets throw COUNT and GROUP BY in there.</p>
+<div class="highlight"><pre><span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="n">M</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">R</span><span class="p">.</span><span class="n">reviewer</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="n">M</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">reviews</span> <span class="n">R</span> <span class="k">ON</span> <span class="p">(</span><span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">R</span><span class="p">.</span><span class="n">movie</span><span class="p">)</span> <span class="k">WHERE</span> <span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="k">NOT</span> <span class="k">IN</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">movie</span> <span class="k">FROM</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">reviews</span><span class="p">.</span><span class="n">reviewer</span> <span class="o">=</span> <span class="s1">&#39;Sleepy&#39;</span><span class="p">);</span>
+<span class="k">SELECT</span> <span class="n">M</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="k">COUNT</span><span class="p">(</span><span class="n">R</span><span class="p">.</span><span class="n">reviewer</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="n">M</span> <span class="k">LEFT</span> <span class="k">OUTER</span> <span class="k">JOIN</span> <span class="n">reviews</span> <span class="n">R</span> <span class="k">ON</span> <span class="p">(</span><span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">R</span><span class="p">.</span><span class="n">movie</span><span class="p">)</span> <span class="k">WHERE</span> <span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="k">NOT</span> <span class="k">IN</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">movie</span> <span class="k">FROM</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">reviews</span><span class="p">.</span><span class="n">reviewer</span> <span class="o">=</span> <span class="s1">&#39;Sleepy&#39;</span><span class="p">)</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">M</span><span class="p">.</span><span class="n">name</span><span class="p">;</span>
+<span class="n">Casablanca</span><span class="o">|</span><span class="mi">0</span>
+<span class="n">Goodfellas</span><span class="o">|</span><span class="mi">2</span>
+<span class="n">The</span> <span class="n">Dark</span> <span class="n">Knight</span><span class="o">|</span><span class="mi">1</span>
+<span class="n">The</span> <span class="n">Shawshank</span> <span class="n">Redemption</span><span class="o">|</span><span class="mi">0</span>
+</pre></div>
+
+
+<p>GROUP BY works by rolling up all identical values of fields after your SELECT statement, aside from variables inside aggregate functions (which COUNT is), into a single row. So instead of getting one row per movie review as before, we are getting one row per unique movie, and the corresponding reviewer variable has been converted into a count of the number of reviewers associated with each row that was grouped.</p>
+<p>{% img /images/group-by.png 406 458  'Group By' %}</p>
+<p>GROUP BY can be confusing, in particular because depending on which fields you put after your SELECT statement and your GROUP BY clause, the results might not make any sense. The general rule is that any field coming after your SELECT statement that is not in an aggregate function (a function that takes many values and outputs one, like COUNT and SUM) must be in your GROUP BY clause as well, otherwise it either will not work, or the meaning of the query is not well defined. GROUP BY really could be its own post (and I am sure it is elsewhere).</p>
+<p>But we still don't have the database answering this question for us. Lets move that COUNT variable into a HAVING clause.</p>
+<div class="highlight"><pre><span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="n">M</span><span class="p">.</span><span class="n">name</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="n">M</span> <span class="k">LEFT</span> <span class="k">OUTER</span> <span class="k">JOIN</span> <span class="n">reviews</span> <span class="n">R</span> <span class="k">ON</span> <span class="p">(</span><span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">R</span><span class="p">.</span><span class="n">movie</span><span class="p">)</span> <span class="k">WHERE</span> <span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="k">NOT</span> <span class="k">IN</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">movie</span> <span class="k">FROM</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">reviews</span><span class="p">.</span><span class="n">reviewer</span> <span class="o">=</span> <span class="s1">&#39;Sleepy&#39;</span><span class="p">)</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">M</span><span class="p">.</span><span class="n">name</span> <span class="k">HAVING</span> <span class="k">COUNT</span><span class="p">(</span><span class="n">R</span><span class="p">.</span><span class="n">reviewer</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">Casablanca</span>
+<span class="n">The</span> <span class="n">Shawshank</span> <span class="n">Redemption</span>
+</pre></div>
+
+
+<p>Here, moving the COUNT function into the HAVING portion of our query, we are able to look at our groups before passing it up to the rest of the query. We are saying: "only create this group, if the corresponding reviewer count is less than one". As you can see, we now just have a list of movie names that no one, including Sleepy, has reviewed. It appears that in some databases you cannot refer to a field in your HAVING clause if it was not listed after your SELECT statement, so you might have to do the following (which gives me the chance to introduce the aliasing of fields in your SELECT statement using AS)</p>
+<div class="highlight"><pre> <span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="n">M</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="n">R</span><span class="p">.</span><span class="n">reviewer</span><span class="p">)</span> <span class="k">AS</span> <span class="k">C</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="n">M</span> <span class="k">LEFT</span> <span class="k">OUTER</span> <span class="k">JOIN</span> <span class="n">reviews</span> <span class="n">R</span> <span class="k">ON</span> <span class="p">(</span><span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">R</span><span class="p">.</span><span class="n">movie</span><span class="p">)</span> <span class="k">WHERE</span> <span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="k">NOT</span> <span class="k">IN</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">movie</span> <span class="k">FROM</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">reviews</span><span class="p">.</span><span class="n">reviewer</span> <span class="o">=</span> <span class="s1">&#39;Sleepy&#39;</span><span class="p">)</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">M</span><span class="p">.</span><span class="n">name</span> <span class="k">HAVING</span> <span class="k">C</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">;</span>
+</pre></div>
+
+
+<p>Here we put the COUNT function back into the select statement, alias it as C, and then refer to that in our HAVING clause. The alias here is optional, I just did it because it can be done, you can alias any field after your SELECT statement, not just functions.
+It is also important to note that the HAVING portion works on things other than functions. Depending on what you are trying to accomplish it may become confusing as to whether something belongs in a HAVING clause or a WHERE clause. It comes down to where you want to perform the check (either as each row is examined, or as each group is created). I found the following link helpful:</p>
+<p><a href="http://www.databasejournal.com/features/mysql/article.php/3469351/The-HAVING-and-GROUP-BY-SQL-clauses.htm">http://www.databasejournal.com/features/mysql/article.php/3469351/The-HAVING-and-GROUP-BY-SQL-clauses.htm</a></p>
+<p>For this problem though, we definitely need the check to be in the HAVING clause, because the value of the COUNT aggregate function will not yet be defined in the WHERE clause. At the point in time the WHERE clause is being executed the database is still determining which rows are actually in our results and correspondingly, which rows the GROUP BY will be performed on. The HAVING clause allows us to perform checks on the grouped rows.</p>
+<h2>Make the database choose one row at random</h2>
+<p>So we have a query returning a list of movies that Sleepy can review. But he is not a workaholic- he only wants one job, not two. Additionally, he needs to have an equal chance of being assigned either film.
+We solve the too many jobs problem by sticking a LIMIT on the end of the query:</p>
+<div class="highlight"><pre><span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="n">M</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="n">R</span><span class="p">.</span><span class="n">reviewer</span><span class="p">)</span> <span class="k">AS</span> <span class="k">C</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="n">M</span> <span class="k">LEFT</span> <span class="k">OUTER</span> <span class="k">JOIN</span> <span class="n">reviews</span> <span class="n">R</span> <span class="k">ON</span> <span class="p">(</span><span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">R</span><span class="p">.</span><span class="n">movie</span><span class="p">)</span> <span class="k">WHERE</span> <span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="k">NOT</span> <span class="k">IN</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">movie</span> <span class="k">FROM</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">reviews</span><span class="p">.</span><span class="n">reviewer</span> <span class="o">=</span> <span class="s1">&#39;Sleepy&#39;</span><span class="p">)</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">M</span><span class="p">.</span><span class="n">name</span> <span class="k">HAVING</span> <span class="k">C</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">Casablanca</span><span class="o">|</span><span class="mi">0</span>
+</pre></div>
+
+
+<p>This tells the database to only return 1 row from the result set. Unfortunately, every time we run this it will return the same row. We need to get it to randomly pick one of them for us. We can do this by using ORDER BY and then a database specific function. ORDER BY tells the database to return the results ordered by one of the fields. For example, we could ask it to ORDER BY movie.name, and it would always return them in alphabetical order. By using a special function (called RANDOM in SQLite and Postgres), we can have the database assign a random value to each row and then order by that value. So to bring it all together:</p>
+<div class="highlight"><pre><span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="n">M</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="n">R</span><span class="p">.</span><span class="n">reviewer</span><span class="p">)</span> <span class="k">AS</span> <span class="k">C</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="n">M</span> <span class="k">LEFT</span> <span class="k">OUTER</span> <span class="k">JOIN</span> <span class="n">reviews</span> <span class="n">R</span> <span class="k">ON</span> <span class="p">(</span><span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">R</span><span class="p">.</span><span class="n">movie</span><span class="p">)</span> <span class="k">WHERE</span> <span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="k">NOT</span> <span class="k">IN</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">movie</span> <span class="k">FROM</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">reviews</span><span class="p">.</span><span class="n">reviewer</span> <span class="o">=</span> <span class="s1">&#39;Sleepy&#39;</span><span class="p">)</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">M</span><span class="p">.</span><span class="n">name</span> <span class="k">HAVING</span> <span class="k">C</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="k">ORDER</span> <span class="k">BY</span> <span class="n">RANDOM</span><span class="p">()</span> <span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">The</span> <span class="n">Shawshank</span> <span class="n">Redemption</span><span class="o">|</span><span class="mi">0</span>
+</pre></div>
+
+
+<p>If you run this multiple times the result will change. That's it! See this link for database specific random functions:</p>
+<p><a href="http://www.petefreitag.com/item/466.cfm">http://www.petefreitag.com/item/466.cfm</a></p>
+<p>Any corrections or alternative solutions?</p></div>
+    <footer>
+<p class="meta">
+  <span class="byline author vcard">
+    Posted by <span class="fn">jeffmax</span>
+  </span>
+<time datetime="2011-05-20T00:00:00" pubdate>Fri 20 May 2011</time></p><div class="sharing">
+</div>    </footer>
+  </article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div>
+  </section>
+</div>
+<aside class="sidebar">
+  <section>
+    <h1>Recent Posts</h1>
+    <ul id="recent_posts">
+      <li class="post">
+          <a href="http://jeffmax.io/distributing-ios-app-updates-to-beta-testers.html">"Distributing iOS App Updates to Beta Testers"</a>
+      </li>
+      <li class="post">
+          <a href="http://jeffmax.io/progressively-improving-a-sql-query.html">Progressively Improving a SQL Query</a>
+      </li>
+    </ul>
+  </section>
+  <section>
+      
+    <h1>Categories</h1>
+    <ul id="recent_posts">
+        <li><a href="http://jeffmax.io/category/ios.html">ios</a></li>
+    </ul>
+  </section>
+ 
+
+  <section>
+  <h1>Tags</h1>
+  </section>
+
+
+    <section>
+        <h1>Social</h1>
+        <ul>
+            <li><a href="http://twitter.com/jeffmaxlive" target="_blank">twitter</a></li>
+            <li><a href="http://github.com/jeffmax" target="_blank">github</a></li>
+        </ul>
+    </section>
+
+</aside>    </div>
+  </div>
+  <footer role="contentinfo"><p>
+    Copyright &copy;  2011-2013  - jeffmax -
+  <span class="credit">Powered by <a href="http://getpelican.com">Pelican</a></span>
+</p></footer>
+    <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-22723022-3']);
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-22723022-3');
+    ga('send', 'pageview');
+</script>
+	<script type="text/javascript">
+	  var disqus_shortname = 'jeffmax';
+          var disqus_identifier = '/progressively-improving-a-sql-query.html';
+          var disqus_url = 'http://jeffmax.io/progressively-improving-a-sql-query.html';
+          var disqus_title = 'Progressively Improving a SQL Query';
+	  (function() {
+	    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	    dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+	    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	   })();
+	</script>
+</body>
+</html>
