@@ -144,31 +144,28 @@ We can essentially do our first two queries above in one call to the database li
 <p>We now know the names of the movies that Sleepy has not reviewed. We could now just do step 3 above, iterating through each movie to find out how many reviews we have for each one.</p>
 <h2>But we can do better</h2>
 <p>Let's join these two tables.</p>
-<p>{% blockquote %}
-One thing I found confusing when going from trivial SQL queries to more complex problems was that by doing a SELECT from more than one table using a WHERE clause, you are doing an implicit inner join. There are quite a few different types of joins that you can actually perform. I have found the following two links helpful:
+<blockquote>
+<p>One thing I found confusing when going from trivial SQL queries to more complex problems was that by doing a SELECT from more than one table using a WHERE clause, you are doing an implicit inner join. There are quite a few different types of joins that you can actually perform. I have found the following two links helpful:
 <a href="http://www.codinghorror.com/blog/2007/10/a-visual-explanation-of-sql-joins.html">Jeff Atwood explains SQL joins using Venn Diagrams</a>
 and
 <a href="http://en.wikipedia.org/wiki/Join_(SQL)">Wikipedia takes a crack at SQL join types</a>
 So for example, if we wanted to do an inner join on our two tables, one way would be with the following query:</p>
-<div class="highlight"><pre><span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">movies</span><span class="p">,</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">movies</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">reviews</span><span class="p">.</span><span class="n">movie</span><span class="p">;</span>
-<span class="mi">4</span><span class="o">|</span><span class="n">Goodfellas</span><span class="o">|</span><span class="mi">2</span> <span class="n">hours</span><span class="o">|</span><span class="mi">1990</span><span class="o">|</span><span class="mi">1</span><span class="o">|</span><span class="n">Grumpy</span><span class="o">|</span><span class="mi">0</span><span class="o">|</span><span class="mi">4</span>
-<span class="mi">2</span><span class="o">|</span><span class="n">The</span> <span class="n">Dark</span> <span class="n">Knight</span><span class="o">|</span><span class="mi">3</span> <span class="n">hours</span><span class="o">|</span><span class="mi">2008</span><span class="o">|</span><span class="mi">2</span><span class="o">|</span><span class="n">Happy</span><span class="o">|</span><span class="mi">5</span><span class="o">|</span><span class="mi">2</span>
-<span class="mi">3</span><span class="o">|</span><span class="n">Fight</span> <span class="n">Club</span><span class="o">|</span><span class="mi">2</span> <span class="n">hours</span><span class="o">|</span><span class="mi">1999</span><span class="o">|</span><span class="mi">3</span><span class="o">|</span><span class="n">Sleepy</span><span class="o">|?|</span><span class="mi">3</span>
-<span class="mi">4</span><span class="o">|</span><span class="n">Goodfellas</span><span class="o">|</span><span class="mi">2</span> <span class="n">hours</span><span class="o">|</span><span class="mi">1990</span><span class="o">|</span><span class="mi">4</span><span class="o">|</span><span class="n">Martin</span><span class="o">|</span><span class="mi">5</span><span class="o">|</span><span class="mi">4</span>
-</pre></div>
-
-
+<p><code>sql
+sqlite&gt; SELECT * FROM movies, reviews WHERE movies.id = reviews.movie;
+4|Goodfellas|2 hours|1990|1|Grumpy|0|4
+2|The Dark Knight|3 hours|2008|2|Happy|5|2
+3|Fight Club|2 hours|1999|3|Sleepy|?|3
+4|Goodfellas|2 hours|1990|4|Martin|5|4</code></p>
 <p>Here we get a row for each movie review. If there is no review, the movie is not showing up at all. This is because it did an implicit inner join. Other types of joins would produce different results.
 The same query using the more explicit syntax:</p>
-<div class="highlight"><pre><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">reviews</span> <span class="k">ON</span> <span class="p">(</span><span class="n">movies</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">reviews</span><span class="p">.</span><span class="n">movie</span><span class="p">);</span>
-<span class="mi">4</span><span class="o">|</span><span class="n">Goodfellas</span><span class="o">|</span><span class="mi">2</span> <span class="n">hours</span><span class="o">|</span><span class="mi">1990</span><span class="o">|</span><span class="mi">1</span><span class="o">|</span><span class="n">Grumpy</span><span class="o">|</span><span class="mi">0</span><span class="o">|</span><span class="mi">4</span>
-<span class="mi">2</span><span class="o">|</span><span class="n">The</span> <span class="n">Dark</span> <span class="n">Knight</span><span class="o">|</span><span class="mi">3</span> <span class="n">hours</span><span class="o">|</span><span class="mi">2008</span><span class="o">|</span><span class="mi">2</span><span class="o">|</span><span class="n">Happy</span><span class="o">|</span><span class="mi">5</span><span class="o">|</span><span class="mi">2</span>
-<span class="mi">3</span><span class="o">|</span><span class="n">Fight</span> <span class="n">Club</span><span class="o">|</span><span class="mi">2</span> <span class="n">hours</span><span class="o">|</span><span class="mi">1999</span><span class="o">|</span><span class="mi">3</span><span class="o">|</span><span class="n">Sleepy</span><span class="o">|?|</span><span class="mi">3</span>
-<span class="mi">4</span><span class="o">|</span><span class="n">Goodfellas</span><span class="o">|</span><span class="mi">2</span> <span class="n">hours</span><span class="o">|</span><span class="mi">1990</span><span class="o">|</span><span class="mi">4</span><span class="o">|</span><span class="n">Martin</span><span class="o">|</span><span class="mi">5</span><span class="o">|</span><span class="mi">4</span>
-</pre></div>
-
-
-<p _="%" endblockquote="endblockquote">For clarity's sake, I will use the more explicit syntax from here on out.</p>
+<p><code>sql
+SELECT * FROM movies INNER JOIN reviews ON (movies.id = reviews.movie);
+4|Goodfellas|2 hours|1990|1|Grumpy|0|4
+2|The Dark Knight|3 hours|2008|2|Happy|5|2
+3|Fight Club|2 hours|1999|3|Sleepy|?|3
+4|Goodfellas|2 hours|1990|4|Martin|5|4</code></p>
+</blockquote>
+<p>For clarity's sake, I will use the more explicit syntax from here on out.</p>
 <p>So if we join these two tables on the movie id, and select only the fields we actually care about, we could write the following query:</p>
 <div class="highlight"><pre><span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="n">movies</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">reviews</span><span class="p">.</span><span class="n">reviewer</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">reviews</span> <span class="k">ON</span> <span class="p">(</span><span class="n">movies</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">reviews</span><span class="p">.</span><span class="n">movie</span><span class="p">);</span>
 <span class="n">Goodfellas</span><span class="o">|</span><span class="n">Grumpy</span>
@@ -178,13 +175,11 @@ The same query using the more explicit syntax:</p>
 </pre></div>
 
 
-<p>{% blockquote %}
-The above query might also be written like this</p>
-<div class="highlight"><pre><span class="k">SELECT</span> <span class="n">M</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">R</span><span class="p">.</span><span class="n">reviewer</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="n">M</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">reviews</span> <span class="n">R</span> <span class="k">ON</span> <span class="p">(</span><span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">R</span><span class="p">.</span><span class="n">movie</span><span class="p">);</span>
-</pre></div>
-
-
-<p>{% endblockquote %}</p>
+<blockquote>
+<p>The above query might also be written like this</p>
+<p><code>sql     
+SELECT M.name, R.reviewer FROM movies M INNER JOIN reviews R ON (M.id = R.movie);</code> </p>
+</blockquote>
 <p>Just look this over for a second and it should become clear that the M and R following the table names are aliases. Everywhere else in the query that alias is used to refer to its associated table name. You will probably see this used in the SQL wild.</p>
 <p>So we have joined our two tables and grabbed only the information we really cared about. If we add back our subquery, we get this:</p>
 <div class="highlight"><pre><span class="n">sqlite</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="n">M</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">R</span><span class="p">.</span><span class="n">reviewer</span> <span class="k">FROM</span> <span class="n">movies</span> <span class="n">M</span> <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">reviews</span> <span class="n">R</span> <span class="k">ON</span> <span class="p">(</span><span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">R</span><span class="p">.</span><span class="n">movie</span><span class="p">)</span> <span class="k">WHERE</span> <span class="n">M</span><span class="p">.</span><span class="n">id</span> <span class="k">NOT</span> <span class="k">IN</span> <span class="p">(</span><span class="k">SELECT</span> <span class="n">movie</span> <span class="k">FROM</span> <span class="n">reviews</span> <span class="k">WHERE</span> <span class="n">reviews</span><span class="p">.</span><span class="n">reviewer</span> <span class="o">=</span> <span class="s1">&#39;Sleepy&#39;</span><span class="p">);</span>
