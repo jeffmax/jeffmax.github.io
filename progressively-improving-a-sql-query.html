@@ -1,45 +1,84 @@
-<!doctype html>
-<html lang="">	
-<head>
-	<meta charset="utf-8"/>
-	<title>Progressively Improving a SQL Query - jeffmax's blog</title>	
-	<meta name="author" content="jeffmax">
-	
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="jeffmax" />
+        <meta name="copyright" content="jeffmax" />
 
-	<meta name="description" content="Distributing iOS Apps">
+        <meta name="twitter:creator" content="@jeffmaxlive">
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
 
+<meta name="keywords" content=", ios, " />
 
-	<link rel="top" href="#" /><link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,300italic,400italic,600italic|Source+Code+Pro' rel='stylesheet' type='text/css'></link>
-	<link rel="stylesheet" href="http://jeffmax.io/theme/css/main.css" type="text/css" />
-		
+<meta property="og:title" content="Progressively Improving a SQL Query "/>
+<meta property="og:url" content="http://jeffmax.io/progressively-improving-a-sql-query.html" />
+<meta property="og:description" content="Distributing iOS Apps" />
+<meta property="og:site_name" content="jeffmax&#39;s blog" />
+<meta property="og:article:author" content="jeffmax" />
+<meta property="og:article:published_time" content="2011-05-20T00:00:00" />
+<meta name="twitter:title" content="Progressively Improving a SQL Query ">
+<meta name="twitter:description" content="Distributing iOS Apps">
 
-</head>
-	
-<body>
+        <title>Progressively Improving a SQL Query  · jeffmax&#39;s blog
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="http://jeffmax.io/theme/css/pygments.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://jeffmax.io/theme/tipuesearch/tipuesearch.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://jeffmax.io/theme/css/elegant.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://jeffmax.io/theme/css/custom.css" media="screen">
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-22723022-3', 'auto');
+    ga('send', 'pageview');
+</script>
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <div class="span1"></div>
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="http://jeffmax.io/"><span class=site-name>jeffmax's blog</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="http://jeffmax.io">Home</a></li>
+                            <li ><a href="http://jeffmax.io/categories.html">Categories</a></li>
+                            <li ><a href="http://jeffmax.io/tags.html">Tags</a></li>
+                            <li ><a href="http://jeffmax.io/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="http://jeffmax.io/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="http://jeffmax.io/progressively-improving-a-sql-query.html"> Progressively Improving a SQL Query  </a></h1>
+    </header>
+</div>
 
-    <div class="container">
-	  
-	  <header role="banner">
-	    <div class="feeds">
-	    </div>
-		<a href="http://jeffmax.io" class="title">jeffmax's blog</a>
-      </header>
-	
-	  <div class="wrapper">
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
 
-		  <div role="main" class="content">
-	<article class="full">
-			
-		<h1>Progressively Improving a SQL Query</h1>
-		
-<div class="metadata">
-  <time datetime="2011-05-20T00:00:00" pubdate>Fri 20 May 2011</time>
-    <address class="vcard author">
-      by <a class="url fn" href="http://jeffmax.io/author/jeffmax.html">jeffmax</a>
-    </address>
-  in <a href="http://jeffmax.io/category/ios.html">ios</a>
-</div>		
-		<p>A note on this post: I will be discussing the details to the solution of a problem that was solved by a co-worker of mine. See his blog, <a href="http://devel.io//">The Devel</a>.</p>
+            
+            <p>A note on this post: I will be discussing the details to the solution of a problem that was solved by a co-worker of mine. See his blog, <a href="http://devel.io//">The Devel</a>.</p>
 <p>SQL has always been a bit of a mystery to me. To date, my most complicated queries have been fairly simple table joins. Recently I stumbled upon a problem that I would have traditionally solved by doing two or three separate dynamically generated queries executed from a programming language like Python. My mercifully patient co-workers explained the problem could be solved with one query that uses a few more advanced SQL concepts, including:</p>
 <ol>
 <li>a subquery</li>
@@ -240,67 +279,120 @@ We solve the too many jobs problem by sticking a LIMIT on the end of the query:<
 
 <p>If you run this multiple times the result will change. That's it! See this link for database specific random functions:</p>
 <p><a href="http://www.petefreitag.com/item/466.cfm">http://www.petefreitag.com/item/466.cfm</a></p>
-<p>Any corrections or alternative solutions?</p>	
+<p>Any corrections or alternative solutions?</p>
+            
+            <section>
+<div class="accordion" id="accordion2">
+    <div class="accordion-group">
+        <div class="accordion-heading">
+            <a class="accordion-toggle disqus-comment-count" data-toggle="collapse" data-parent="#accordion2"
+                href="http://jeffmax.io/progressively-improving-a-sql-query.html#disqus_thread">
+                Comments
+            </a>
+        </div>
+        <div id="disqus_thread" class="accordion-body collapse">
+            <div class="accordion-inner">
+                <div class="comments">
+                    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'jeffmax';
+        var disqus_identifier = 'http://jeffmax.io/progressively-improving-a-sql-query.html';
+    var disqus_url = 'http://jeffmax.io/progressively-improving-a-sql-query.html';
 
-	</article>
+    (function() {
+         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+         dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
-    <p>
-	<a href="https://twitter.com/share" class="twitter-share-button" data-via="jeffmaxlive" data-lang="en" data-size="large" data-related="jeffmaxlive">Tweet</a>
-	<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-	</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
 
-	<div class="comments">
-	<h2>Comments !</h2>
-	    <div id="disqus_thread"></div>
-	    <script type="text/javascript">
-	       var disqus_identifier = "progressively-improving-a-sql-query.html";
-	       (function() {
-	       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-	       dsq.src = 'http://jeffmax.disqus.com/embed.js';
-	       (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-	      })();
-	    </script>
-	</div>
+            <hr/>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2011-05-20T00:00:00">May 20, 2011</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://jeffmax.io/categories.html#ios-ref">ios</a>
+<h4>Contact</h4>
+    <a href="http://twitter.com/jeffmaxlive" title="My twitter Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-twitter sidebar-social-links"></i></a>
+    <a href="http://github.com/jeffmax" title="My github Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-github sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
 
-		  </div>	
-		  
-		  <div class="sidebar">
+            <script type="text/javascript">
+var disqus_shortname = 'jeffmax';
+(function () {
+    var s = document.createElement('script'); s.async = true;
+    s.type = 'text/javascript';
+    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+<script  language="javascript" type="text/javascript">
+function uncollapse() {
+    if (window.location.hash.match(/^#comment-\d+$/)) {
+        $('#disqus_thread').collapse('show');
+    }
+}
+</script>
+<script type="text/javascript" language="JavaScript">
+uncollapse();
+window.onhashchange=function(){
+    if (window.location.hash.match(/^#comment-\d+$/))
+        window.location.reload(true);
+}
+</script>
+<script>
+$('#disqus_thread').on('shown', function () {
+    var link = document.getElementsByClassName('accordion-toggle');
+    var old_innerHTML = link[0].innerHTML;
+    $(link[0]).fadeOut(500, function() {
+        $(this).text('Click here to hide comments').fadeIn(500);
+    });
+    $('#disqus_thread').on('hidden', function () {
+        $(link[0]).fadeOut(500, function() {
+            $(this).text(old_innerHTML).fadeIn(500);
+        });
+    })
+})
+</script>
 
-	        <nav>
-	          <h2>Categories</h2>
-	          <ul>
-	              <li class="active"><a href="http://jeffmax.io/category/ios.html">ios</a></li>
-	          </ul>
-	        </nav>
 
-	          <aside>
-	          <h2>Social</h2>
-			    <ul class="social">
-				  <li><a href="http://twitter.com/jeffmaxlive">twitter</a><i></i></li>
-				  <li><a href="http://github.com/jeffmax">github</a><i></i></li>
-			    </ul>
-			  </aside>
-
-
-		  </div>
-
-	  </div>
-
-      <footer>
-		<p role="contentinfo">
-		  © 2013 jeffmax - Proudly powered by <a href="http://alexis.notmyidea.org/pelican/">pelican</a>. Theme <a href="https://github.com/fle/pelican-simplegrey">pelican-simplegrey</a>.
-    	</p>
-
-	  </footer>	
-
-	</div>
-	
-	  <script>
-		var _gaq=[['_setAccount','UA-22723022-3'],['_trackPageview']];
-		(function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-		g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-		s.parentNode.insertBefore(g,s)}(document,'script'));
-	  </script>
-
-</body>
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
 </html>
