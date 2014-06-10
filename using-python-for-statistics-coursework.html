@@ -88,7 +88,7 @@
         <div class="span8 offset2 article-content">
 
             
-            <p>I am currently enrolled in an Applied Statistics program. So far, the courses are all designed ot use Minitab. Minitab is easy to use, but I really like to use the IPython Notebook, so I have been trying to duplicate the features of Minitab we are using in Python. The functionality is all there, but is spread across different libraries, and there are many choices when it comes to graphing. In this post I will show to do some simple statistics (mostly related to linear regression) using Python.</p>
+            <p>I am currently enrolled in an applied statistics program. For my course I really want to use the IPython Notebook. It allows me to do the calculations and show formulas all in one document. I have been trying figure out how to use Python instead of a statistics program. The functionality is all there, but is spread across different libraries, and there are many choices when it comes to graphing. In this post I will show to do some simple statistics (mostly related to linear regression) using Python.</p>
 <h1>Requirements</h1>
 <ul>
 <li>numpy</li>
@@ -100,7 +100,7 @@
 <li>ggplot</li>
 </ul>
 <h1>Getting data into Python</h1>
-<p>For class assignments, data is typically given in some column based format (either in Excel, or a tab/comma delimeted file). CSV is the easiest to import, so use Excel to export whatever you have into CSV. Then Pandas has a method to quickly get data from a CSV file into Python (into a Pandas DataFrame object). Pandas provides a lot of functionality, but at its core is the DataFrame and Series object.</p>
+<p>Data is typically in some column-based format (either in Excel, or a tab/comma delimeted file). CSV is the easiest to import, so use Excel to export whatever you have into CSV. Then Pandas has a method to quickly get data from a CSV file into Python (into a Pandas DataFrame object). Pandas provides a lot of functionality, but at its core is the DataFrame and Series object.</p>
 <div class="highlight"><pre><span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="s">&quot;filename.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="bp">None</span><span class="p">))</span>
 </pre></div>
