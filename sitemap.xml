@@ -4,120 +4,155 @@ xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitem
 xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
-<loc>/index.html</loc>
-<lastmod>2014-06-09T23:27:26-00:00</lastmod>
+<loc>http://jeffmax.io/index.html</loc>
+<lastmod>2014-06-14T08:48:15-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>/archives.html</loc>
-<lastmod>2014-06-09T23:27:26-00:00</lastmod>
+<loc>http://jeffmax.io/archives.html</loc>
+<lastmod>2014-06-14T08:48:15-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>/tags.html</loc>
-<lastmod>2014-06-09T23:27:26-00:00</lastmod>
+<loc>http://jeffmax.io/tags.html</loc>
+<lastmod>2014-06-14T08:48:15-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>/categories.html</loc>
-<lastmod>2014-06-09T23:27:26-00:00</lastmod>
+<loc>http://jeffmax.io/categories.html</loc>
+<lastmod>2014-06-14T08:48:15-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>/using-python-for-statistics-coursework.html</loc>
+<loc>http://jeffmax.io/developer-introduction-to-rsa-keys-and-ssl-certificates.html</loc>
+<lastmod>2014-06-10T10:20:00-00:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://jeffmax.io/using-python-for-statistics-coursework.html</loc>
 <lastmod>2014-06-08T10:20:00-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>/distributing-ios-app-updates-to-beta-testers.html</loc>
+<loc>http://jeffmax.io/distributing-ios-app-updates-to-beta-testers.html</loc>
 <lastmod>2013-11-16T11:38:00-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>/progressively-improving-a-sql-query.html</loc>
+<loc>http://jeffmax.io/progressively-improving-a-sql-query.html</loc>
 <lastmod>2011-05-20T00:00:00-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>/category/ios.html</loc>
+<loc>http://jeffmax.io/category/certificates.html</loc>
+<lastmod>2014-06-10T10:20:00-00:00</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://jeffmax.io/category/ios.html</loc>
 <lastmod>2013-11-16T11:38:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>/category/python.html</loc>
+<loc>http://jeffmax.io/category/python.html</loc>
 <lastmod>2014-06-08T10:20:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>/tag/statistics.html</loc>
+<loc>http://jeffmax.io/tag/statistics.html</loc>
 <lastmod>2014-06-08T10:20:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>/tag/seaborn.html</loc>
+<loc>http://jeffmax.io/tag/cryptography.html</loc>
+<lastmod>2014-06-10T10:20:00-00:00</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://jeffmax.io/tag/seaborn.html</loc>
 <lastmod>2014-06-08T10:20:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>/tag/python.html</loc>
+<loc>http://jeffmax.io/tag/python.html</loc>
 <lastmod>2014-06-08T10:20:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>/tag/bokeh.html</loc>
+<loc>http://jeffmax.io/tag/rsa.html</loc>
+<lastmod>2014-06-10T10:20:00-00:00</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://jeffmax.io/tag/statsmodels.html</loc>
 <lastmod>2014-06-08T10:20:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>/tag/ggplot2.html</loc>
+<loc>http://jeffmax.io/tag/bokeh.html</loc>
 <lastmod>2014-06-08T10:20:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>/tag/statsmodels.html</loc>
+<loc>http://jeffmax.io/tag/ggplot2.html</loc>
 <lastmod>2014-06-08T10:20:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>/tag/pandas.html</loc>
+<loc>http://jeffmax.io/tag/certificates.html</loc>
+<lastmod>2014-06-10T10:20:00-00:00</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://jeffmax.io/tag/pandas.html</loc>
 <lastmod>2014-06-08T10:20:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>/author/jeffmax.html</loc>
-<lastmod>2014-06-08T10:20:00-00:00</lastmod>
+<loc>http://jeffmax.io/author/jeffmax.html</loc>
+<lastmod>2014-06-10T10:20:00-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
