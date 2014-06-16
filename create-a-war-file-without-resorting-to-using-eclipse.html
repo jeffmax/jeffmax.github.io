@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="jeffmax" />
+        <meta name="copyright" content="jeffmax" />
+
+        <meta name="twitter:creator" content="@jeffmaxlive">
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="war file, java, Java, " />
+
+<meta property="og:title" content="Create a WAR file without resorting to using Eclipse "/>
+<meta property="og:url" content="http://jeffmax.io/create-a-war-file-without-resorting-to-using-eclipse.html" />
+<meta property="og:description" content="How to create a WAR file without using an IDE" />
+<meta property="og:site_name" content="jeffmax&#39;s blog" />
+<meta property="og:article:author" content="jeffmax" />
+<meta property="og:article:published_time" content="2011-04-11T05:23:56" />
+<meta name="twitter:title" content="Create a WAR file without resorting to using Eclipse ">
+<meta name="twitter:description" content="How to create a WAR file without using an IDE">
+
+        <title>Create a WAR file without resorting to using Eclipse  · jeffmax&#39;s blog
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="http://jeffmax.io/theme/css/pygments.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://jeffmax.io/theme/tipuesearch/tipuesearch.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://jeffmax.io/theme/css/elegant.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://jeffmax.io/theme/css/custom.css" media="screen">
+        <link rel="shortcut icon" href="http://jeffmax.io/theme/images/favicon.ico" type="image/x-icon" type="image/png" />
+        <link rel="icon" href="http://jeffmax.io/theme/images/apple-touch-icon-152x152.png" type="image/png" />
+        <link rel="apple-touch-icon" href="http://jeffmax.io/theme/images/apple-touch-icon.png"  type="image/png" />
+        <link rel="apple-touch-icon" sizes="57x57" href="http://jeffmax.io/theme/images/apple-touch-icon-57x57.png" type="image/png" />
+        <link rel="apple-touch-icon" sizes="72x72" href="http://jeffmax.io/theme/images/apple-touch-icon-72x72.png" type="image/png" />
+        <link rel="apple-touch-icon" sizes="76x76" href="http://jeffmax.io/theme/images/apple-touch-icon-76x76.png" type="image/png" />
+        <link rel="apple-touch-icon" sizes="114x114" href="http://jeffmax.io/theme/images/apple-touch-icon-114x114.png" type="image/png" />
+        <link rel="apple-touch-icon" sizes="120x120" href="http://jeffmax.io/theme/images/apple-touch-icon-120x120.png" type="image/png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="http://jeffmax.io/theme/images/apple-touch-icon-144x144.png" type="image/png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="http://jeffmax.io/theme/images/apple-touch-icon-152x152.png" type="image/png" />
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-22723022-3', 'auto');
+    ga('send', 'pageview');
+</script>
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <div class="span1"></div>
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="http://jeffmax.io/"><span class=site-name>jeffmax's blog</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="http://jeffmax.io">Home</a></li>
+                            <li ><a href="http://jeffmax.io/categories.html">Categories</a></li>
+                            <li ><a href="http://jeffmax.io/tags.html">Tags</a></li>
+                            <li ><a href="http://jeffmax.io/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="http://jeffmax.io/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="http://jeffmax.io/create-a-war-file-without-resorting-to-using-eclipse.html"> Create a WAR file without resorting to using Eclipse  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            
+            <p>Recently I wanted to make a simple Java servlet without dealing with Eclipse (or any IDE). I have traditionally always used Eclipse to start a new Java project, and then committed whatever mess of xml and .project files the thing dumped onto my computer. This is not fun later.
+I decided to use <a href="http://buildr.apache.org/">Apache Buildr</a>, a Java build framework which appears to be Rake mixed together with Maven.  The documentation looks promising, but it is not yet popular enough that google won't try to correct your spelling when you try searching about it.  It uses Ruby's syntax, so the build file is not XML like Ant or Maven, but it is compatible with Maven2 respositories. This means there is the chance of finding all your dependencies automatically. Not a good chance though.</p>
+<p>My project had the following requirements:</p>
+<p>1) Build against a jar from a maven repo.
+2) Build against some local jars.
+3) Remove at least one of the jars from the final war. This had to do with not delivering the servlet-api jar that conflicts with the one tomcat provides.
+4) Include an xml file in a specific, non-standard location in the final war.</p>
+<p>First the build directory structure:</p>
+<div class="highlight"><pre>buildfile <span class="o">&lt;--</span> this is the buildr build file
+lib<span class="o">/</span>  <span class="o">&lt;--</span> folder containing all dependent jars
+src<span class="o">/</span>main<span class="o">/</span>
+src<span class="o">/</span>main<span class="o">/</span>webapp<span class="o">/</span>WEB<span class="o">-</span>INF<span class="o">/</span> web.xml <span class="o">&lt;--</span> war file<span class="s">&#39;</span><span class="err">s web.xml</span>
+src<span class="o">/</span>main<span class="o">/</span>resources<span class="o">/</span> <span class="o">&lt;--</span>  various configuration files
+src<span class="o">/</span>main<span class="o">/</span>java<span class="o">/</span> <span class="o">&lt;--</span> Your java code
+src<span class="o">/</span>main<span class="o">/</span>conf<span class="o">/</span> <span class="o">&lt;--</span> Non<span class="o">-</span>standard location <span class="kr">for</span> resource file
+</pre></div>
+
+
+<p>The <a href="http://buildr.apache.org/packaging.html#war">buildr documentation</a>  explains that the  /src/main/webapp will become the root of the war, your java files will be compiled and placed at /WEB-INF/classes, and the dependent jars will be put into WEB-INF/libs.</p>
+<p>Now the buildfile:</p>
+<div class="highlight"><pre><span class="cp"># Generated by Buildr 1.4.5, change to your liking</span>
+<span class="cp"># Version number for this release</span>
+<span class="n">VERSION_NUMBER</span> <span class="o">=</span> <span class="s">&quot;1.0.0&quot;</span>
+<span class="cp">#Group identifier for your projects</span>
+<span class="n">GROUP</span> <span class="o">=</span> <span class="s">&quot;SomeWar&quot;</span>
+<span class="n">COPYRIGHT</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+<span class="cp"># Specify Maven 2.0 remote repositories here</span>
+<span class="n">repositories</span><span class="p">.</span><span class="n">remote</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;http://www.ibiblio.org/maven2/&quot;</span>
+<span class="n">repositories</span><span class="p">.</span><span class="n">remote</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;http://repo1.maven.org/maven2/&quot;</span>
+
+<span class="cp"># Specifying an artifact here, Maven style</span>
+<span class="n">SERVLET</span> <span class="o">=</span> <span class="s">&quot;javax.servlet:servlet-api:jar:2.4&quot;</span>
+
+<span class="n">desc</span> <span class="s">&quot;The SomeWar Project&quot;</span>
+<span class="n">define</span> <span class="s">&quot;somewar&quot;</span><span class="err"> </span><span class="k">do</span>
+<span class="n">project</span><span class="p">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">VERSION_NUMBER</span>
+<span class="n">project</span><span class="p">.</span><span class="n">group</span> <span class="o">=</span> <span class="n">GROUP</span>
+<span class="n">manifest</span><span class="p">[</span><span class="s">&quot;Implementation-Vendor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">COPYRIGHT</span>
+
+<span class="cp"># Add all the jars in your lib directory to the dependencies</span>
+<span class="n">compile</span><span class="p">.</span><span class="n">with</span> <span class="n">Dir</span><span class="p">[</span><span class="n">_</span><span class="p">(</span><span class="s">&quot;lib/*.jar&quot;</span><span class="p">)]</span>
+
+<span class="cp"># Go find that servlet artifact in one of those Maven repos previously specified</span>
+<span class="n">compile</span><span class="p">.</span><span class="n">with</span> <span class="n">SERVLET</span>
+
+<span class="cp"># Uncomment the line below to show what jars will be included in your war</span>
+<span class="cp"># puts package(:war).libs.map()</span>
+
+<span class="cp"># This final line says to include my.xml file at</span>
+<span class="cp"># src/main/conf/ as new.xml</span>
+<span class="cp"># at WEB-INF/classes/conf,</span>
+<span class="cp"># and remove the jar specified by the SERVLET artifact</span>
+<span class="n">package</span><span class="p">(</span><span class="o">:</span><span class="n">war</span><span class="p">).</span><span class="n">include</span><span class="p">(</span><span class="s">&quot;src/main/conf/my.xml&quot;</span><span class="p">,</span><span class="o">:</span><span class="n">as</span><span class="o">=&gt;</span><span class="err">&#39;</span><span class="n">WEB</span><span class="o">-</span><span class="n">INF</span><span class="o">/</span><span class="n">classes</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">new</span><span class="p">.</span><span class="n">xml</span><span class="err">&#39;</span><span class="p">).</span><span class="n">libs</span> <span class="o">-=</span> <span class="n">artifacts</span><span class="p">(</span><span class="n">SERVLET</span><span class="p">)</span>
+<span class="n">end</span>
+</pre></div>
+
+
+<p>That's it.</p>
+            
+            <section>
+<p id="comment-message">Thanks for reading, please leave any comments or corrections. </p>
+<div class="accordion" id="accordion2">
+    <div class="accordion-group">
+        <div class="accordion-heading">
+            <a class="accordion-toggle disqus-comment-count" data-toggle="collapse" data-parent="#accordion2"
+                href="http://jeffmax.io/create-a-war-file-without-resorting-to-using-eclipse.html#disqus_thread">
+                Comments
+            </a>
+        </div>
+        <div id="disqus_thread" class="accordion-body collapse">
+            <div class="accordion-inner">
+                <div class="comments">
+                    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'jeffmax';
+        var disqus_identifier = 'http://jeffmax.io/create-a-war-file-without-resorting-to-using-eclipse.html';
+    var disqus_url = 'http://jeffmax.io/create-a-war-file-without-resorting-to-using-eclipse.html';
+
+    (function() {
+         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+         dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+            <hr/>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2011-04-11T05:23:56">Apr 11, 2011</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://jeffmax.io/categories.html#java-ref">Java</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="http://jeffmax.io/tags.html#java-ref">java
+                    <span>1</span>
+</a></li>
+                <li><a href="http://jeffmax.io/tags.html#war-file-ref">war file
+                    <span>1</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="http://twitter.com/jeffmaxlive" title="My twitter Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-twitter sidebar-social-links"></i></a>
+    <a href="http://github.com/jeffmax" title="My github Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-github sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+            <script type="text/javascript">
+var disqus_shortname = 'jeffmax';
+(function () {
+    var s = document.createElement('script'); s.async = true;
+    s.type = 'text/javascript';
+    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+<script  language="javascript" type="text/javascript">
+function uncollapse() {
+    if (window.location.hash.match(/^#comment-\d+$/)) {
+        $('#disqus_thread').collapse('show');
+    }
+}
+</script>
+<script type="text/javascript" language="JavaScript">
+uncollapse();
+window.onhashchange=function(){
+    if (window.location.hash.match(/^#comment-\d+$/))
+        window.location.reload(true);
+}
+</script>
+<script>
+$('#disqus_thread').on('shown', function () {
+    var link = document.getElementsByClassName('accordion-toggle');
+    var old_innerHTML = link[0].innerHTML;
+    $(link[0]).fadeOut(500, function() {
+        $(this).text('Click here to hide comments').fadeIn(500);
+    });
+    $('#disqus_thread').on('hidden', function () {
+        $(link[0]).fadeOut(500, function() {
+            $(this).text(old_innerHTML).fadeIn(500);
+        });
+    })
+})
+</script>
+
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>
