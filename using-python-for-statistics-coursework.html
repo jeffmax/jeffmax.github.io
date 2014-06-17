@@ -155,13 +155,13 @@
 
 
 <h2>Residuals vs Fits</h2>
-<p>Generating a graph of Residuals versus the fitted y values has come up a few times. I searched all over for a library taht does this out of the box, but could not find it. Seaborn comes close with </p>
+<p>Generating a graph of residuals versus the fitted y values has come up a few times. I searched for a library that does this out of the box, but could not find it. Seaborn comes close with:</p>
 <div class="highlight"><pre><span class="kn">import</span> <span class="nn">seaborn</span> <span class="kn">as</span> <span class="nn">sns</span>
 <span class="n">sns</span><span class="o">.</span><span class="n">residplot</span><span class="p">(</span><span class="s">&quot;Column1&quot;</span><span class="p">,</span> <span class="s">&quot;Column2&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 </pre></div>
 
 
-<p>But unforutnately this creates a plot of residuals vs the x values. I think in many situations, this graph will tell you the same thing as residuals versis fitted values, but it is not what I was looking for. Here is how to create it with vanilla matplotlib</p>
+<p>But unfortunately this creates a plot of residuals vs the x values. I think in many situations, this graph will tell you the same thing as residuals versus fitted values, but it is not what I was looking for. Here is how to create it with vanilla matplotlib:</p>
 <div class="highlight"><pre><span class="n">fitted</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">+</span> <span class="mf">0.7</span><span class="o">*</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;Column1&quot;</span><span class="p">]</span> <span class="c"># This just needs to be whatever the linear regrsssion equation is</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
 <span class="n">axes</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> 
