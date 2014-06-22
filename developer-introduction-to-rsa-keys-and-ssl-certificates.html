@@ -107,7 +107,7 @@
 </blockquote>
 <h3>Public Key</h3>
 <p>So now we have this .pem file with a private and public key, but if you want to do anything useful with this stuff you will need to be able to share only your public key. So the following extracts your public key</p>
-<div class="highlight"><pre><span class="n">openssl</span> <span class="n">rsa</span> <span class="o">-</span><span class="n">in</span> <span class="n">mykey</span><span class="p">.</span><span class="n">pem</span> <span class="o">-</span><span class="n">pubout</span> <span class="o">&gt;</span> <span class="n">mykey</span><span class="p">.</span><span class="n">pub</span>
+<div class="highlight"><pre><span class="n">openssl</span> <span class="n">rsa</span> <span class="o">-</span><span class="n">in</span> <span class="n">privatekey</span><span class="p">.</span><span class="n">pem</span> <span class="o">-</span><span class="n">pubout</span> <span class="o">&gt;</span> <span class="n">publickey</span><span class="p">.</span><span class="n">pub</span>
 </pre></div>
 
 
@@ -120,7 +120,7 @@
 </ol>
 <h3>Certificates</h3>
 <p>Certificates are useful if you are trying to setup a server for https or just need to work within the confines of a system that works best with certificates. For example, if you wanted to use your public key on iOS, the primitive functions exposed there expect a certificate even if you don't need any kind of chain of ownership. To generate a certificate you use openssl to create a Certificate Signing Request. In our case, we have already have a private/public key pair, so you would the following command</p>
-<div class="highlight"><pre><span class="n">openssl</span> <span class="n">req</span> <span class="o">-</span><span class="n">out</span> <span class="n">CSR</span><span class="p">.</span><span class="n">csr</span> <span class="o">-</span><span class="n">key</span> <span class="n">mykey</span><span class="p">.</span><span class="n">key</span> <span class="o">-</span><span class="n">new</span>
+<div class="highlight"><pre><span class="n">openssl</span> <span class="n">req</span> <span class="o">-</span><span class="n">out</span> <span class="n">CSR</span><span class="p">.</span><span class="n">csr</span> <span class="o">-</span><span class="n">key</span> <span class="n">privatekey</span><span class="p">.</span><span class="n">key</span> <span class="o">-</span><span class="n">new</span>
 </pre></div>
 
 
