@@ -11,18 +11,18 @@
         <meta property="og:type" content="article" />
         <meta name="twitter:card" content="summary">
 
-<meta name="keywords" content="vim, Vim, " />
+<meta name="keywords" content=", misc, " />
 
-<meta property="og:title" content="Yet Another Vim Post "/>
-<meta property="og:url" content="http://jeffmax.io/yet-another-vim-post.html" />
-<meta property="og:description" content="Info on Vim" />
+<meta property="og:title" content="&#34;An impenetrable guide to SBT&#34; "/>
+<meta property="og:url" content="http://jeffmax.io/an-impenetrable-guide-to-sbt.html" />
+<meta property="og:description" content="This document is meant to serve as introductory guide to using SBT. The SBT wiki contains a lot of information, but my opinion is that it could have been presented in a more digestible manner, especially for those that are new to Scala. I think one of the biggest problems ..." />
 <meta property="og:site_name" content="jeffmax&#39;s blog" />
 <meta property="og:article:author" content="jeffmax" />
-<meta property="og:article:published_time" content="2012-01-19T01:55:52+01:00" />
-<meta name="twitter:title" content="Yet Another Vim Post ">
-<meta name="twitter:description" content="Info on Vim">
+<meta property="og:article:published_time" content="2012-04-25T22:30:00+02:00" />
+<meta name="twitter:title" content="&#34;An impenetrable guide to SBT&#34; ">
+<meta name="twitter:description" content="This document is meant to serve as introductory guide to using SBT. The SBT wiki contains a lot of information, but my opinion is that it could have been presented in a more digestible manner, especially for those that are new to Scala. I think one of the biggest problems ...">
 
-        <title>Yet Another Vim Post  · jeffmax&#39;s blog
+        <title>&#34;An impenetrable guide to SBT&#34;  · jeffmax&#39;s blog
 </title>
         <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
         <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
@@ -80,7 +80,7 @@
 <article>
 <div class="row-fluid">
     <header class="page-header span10 offset2">
-    <h1><a href="http://jeffmax.io/yet-another-vim-post.html"> Yet Another Vim Post  </a></h1>
+    <h1><a href="http://jeffmax.io/an-impenetrable-guide-to-sbt.html"> "An impenetrable guide to SBT"  </a></h1>
     </header>
 </div>
 
@@ -88,45 +88,56 @@
         <div class="span8 offset2 article-content">
 
             
-            <h1>A few of my favorite things (in an editor)</h1>
-<p>I have a couple things I really look for in a text editor.</p>
-<p>1) I need vertical selection, and I need it to not be really awkward to do.</p>
-<p>2) I need to be able to open up a folder as a project. I can't stand when an xml or .property file is required to define a project. The files are in a folder. That's it</p>
-<h1>Making Vim nicer/easier</h1>
-<p>Textmate does both of these, but obviously only works on Mac, and Vim can be made to do both of these things. I have gone back and forth between using Vim and Textmate over the past few years, but I have been using Vim for a while now.  A couple of things have contributed to that:</p>
-<p><a href="https://github.com/b4winckler/macvim">MacVim</a></p>
-<p><a href="https://github.com/carlhuda/janus">Janus, a well-maintained Vim configuration</a></p>
-<p>Some people recommend not using anything like Janus when first getting started with Vim. That may be good advice to some, but I think in general, anything that cuts down on everyone having to go through the same painful (and not strictly necessary) configuration learning curve is probably useful. If you use Janus and really like it, you will probably go back and fill in some of the basics you missed. One of the things I really like with Janus is they have it configured so that out of the box if you type</p>
-<div class="highlight"><pre><span class="n">vim</span> <span class="p">.</span>
+            <p>This document is meant to serve as introductory guide to using SBT. The
+SBT wiki contains a lot of information, but my opinion is that it could
+have been presented in a more digestible manner, especially for those
+that are new to Scala. I think one of the biggest problems with the
+documentation is that it starts with the simplified Build.sbt file,
+but to create a custom task, which will be necessary in many non-trival
+builds, requires using the more complex Build.scala format. I think
+think it might be better to present the concepts behind creating a
+Build.scala file, and then explain how the Build.sbt can be used for
+simplifying.  That being said, if you need to build a simple jar,
+the SBT Getting Started Wiki, and the Build.sbt file will probably serve
+you well.</p>
+<h1>Prepare yourself</h1>
+<p>SBT uses a lot of custom operators like := and &gt;&gt;=. In my opinion, some
+of these operations would be much clearer if they just used function
+names instead of operators, but it appears that brevity has taken
+precedence. It is worthwhile reinforcing that in Scala, when you see
+something like this </p>
+<div class="highlight"><pre><span class="n">a</span> <span class="o">:=</span> <span class="n">b</span>
 </pre></div>
 
 
-<p>at the command prompt, it will launch vim with Nerdtree (a file folder plugin) showing the current folder. I've never really looked to see if this is complex or easy to do, but with Janus, I don't have to!</p>
-<p>A slight note: while the above is still useful at times, I have recently been using the <a href="https://github.com/kien/ctrlp.vim">ctrlp</a> (or <a href="https://github.com/wincent/Command-T">Command-T</a> works too) plugin to quickly search and open the file I want instead of navigating around in the Nerdtree file navigator.</p>
-<p>Even if you use Janus, you still need to learn how to use Vim as an editor (as opposed to setting up its configuration files) and you will no doubt want to make configuration tweaks.  The rest of this post is dedicated to some of my favorite links that explain both Vim configuration and  how to actually use it as an editor.</p>
-<h1>Vim Basics</h1>
-<p>This is a good introduction to customizing Vim:</p>
-<p><a href="http://nvie.com/posts/how-i-boosted-my-vim/">http://nvie.com/posts/how-i-boosted-my-vim/</a>  (most of my non-Janus vimrc comes from this one)</p>
-<p>This is also a introduction to Vim in general:</p>
-<p><a href="http://wiki.memodrive.com/_media/docs/tools/vim_tips1.pdf">http://wiki.memodrive.com/_media/docs/tools/<strong>vim</strong>_tips1.pdf</a></p>
-<h1>Key Concepts</h1>
-<p>You can use Vim for a while without understanding the concepts introduced in this next post, but this is the only one I have ever seen that does a good job of explaining Vim text objects (as compared to motions). He really breaks down the usage of "&lt;#&gt;<Command><Motion or Text Object>" in Vim normal mode.</p>
-<p><a href="http://blog.carbonfive.com/2011/10/17/vim-text-objects-the-definitive-guide/">http://blog.carbonfive.com/2011/10/17/vim-text-objects-the-definitive-guide/</a></p>
-<p>Once you understand text objects vs motions, this tutorial is a good review.</p>
-<p><a href="http://mislav.uniqpath.com/2011/12/vim-revisited/">http://mislav.uniqpath.com/2011/12/vim-revisited/ </a> (although he hates Janus)</p>
-<h1>Other enhancements</h1>
-<p>This is a really great plugin, even if you are not using Janus (which just added it).</p>
-<p><a href="https://github.com/Lokaltog/vim-easymotion">EasyMotion</a></p>
-<p>Basically it makes it easy to jump to the exact desired spot on the screen without counting lines and words (who can count anymore anyway?).</p>
-<p>There are a bunch of settings that I prefer (you can see them<a href="https://github.com/jeffmax/Vim/blob/master/.vimrc"> here,</a> but I am sure there are better .vimrc files out <a href="https://bitbucket.org/sjl/dotfiles/src/b5e60ade957d/vim/.vimrc">there</a>), but there is one that I could not do without:</p>
-<div class="highlight"><pre><span class="n">set</span> <span class="n">virtualedit</span><span class="o">+=</span><span class="n">block</span>
+<p>this can be thought of as calling the function called ":=" on a, passing
+b as a parameter.</p>
+<h1>Directory Structure</h1>
+<p>First things first. Your code should be in a "src/main/scala" directory
+and your resources should be in a "src/main/resources". The root of the
+project will be the directory that contains the "src" directory. If you
+have any jars that your project is dependent on, place them in a "lib"
+directory in the root directory (along side "src").</p>
+<h1>Running sbt with no configuration</h1>
+<p>If all of your project dependencies are in the lib directory, and you
+don't need to anything more complex, just run the following command from
+your root directory:</p>
+<div class="highlight"><pre><span class="n">sbt</span> <span class="n">run</span>
 </pre></div>
 
 
-<p>This enables you to navigate beyond the end of the line and onto blank lines when in visual block mode. Without this I find it very difficult to use Vim at all, especially when trying to do some of the things I could do in Textmate with vertical selections.</p>
-<h1>Some other great blog posts about Vim</h1>
-<p><a href="http://stevelosh.com/blog/2010/09/coming-home-to-vim/">http://stevelosh.com/blog/2010/09/coming-home-to-vim/</a></p>
-<p><a href="http://stackoverflow.com/questions/1497958/how-to-use-vim-registers/1498026#1498026">http://stackoverflow.com/questions/1497958/how-to-use-vim-registers/1498026#1498026</a>  The second most popular answer is really useful and I have never seen it discussed elsewhere.</p>
+<p>This should compile and run your project, assuming you have some sort of
+main function in your Scala code. If instead, you are just creating a
+library, the following should create a jar for you.</p>
+<div class="highlight"><pre><span class="n">sbt</span> <span class="n">package</span>
+</pre></div>
+
+
+<p>This all works by convention, and is quite nice when compared to other
+build systems. The rest of this tutorial will focus on customizing sbt
+to do more complex tasks.</p>
+<h1>The Build files</h1>
+<p>There are two types of ways to describe your build using SBT, one is a simplified format called Build.sbt, and the other is a Build.scala file. Build.sbt is a simplified version of Build.scala with some things already taken care of for you, but I am going to start with Build.scala because I think it will be easier to understand in the long run.</p>
             
             <section>
 <p id="comment-message">Thanks for reading, please leave any comments or corrections. </p>
@@ -134,7 +145,7 @@
     <div class="accordion-group">
         <div class="accordion-heading">
             <a class="accordion-toggle disqus-comment-count" data-toggle="collapse" data-parent="#accordion2"
-                href="http://jeffmax.io/yet-another-vim-post.html#disqus_thread">
+                href="http://jeffmax.io/an-impenetrable-guide-to-sbt.html#disqus_thread">
                 Comments
             </a>
         </div>
@@ -144,8 +155,8 @@
                     <div id="disqus_thread"></div>
 <script type="text/javascript">
     var disqus_shortname = 'jeffmax';
-        var disqus_identifier = 'http://jeffmax.io/yet-another-vim-post.html';
-    var disqus_url = 'http://jeffmax.io/yet-another-vim-post.html';
+        var disqus_identifier = 'http://jeffmax.io/an-impenetrable-guide-to-sbt.html';
+    var disqus_url = 'http://jeffmax.io/an-impenetrable-guide-to-sbt.html';
 
     (function() {
          var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
@@ -168,15 +179,9 @@
         <section>
         <div class="span2" style="float:right;font-size:0.9em;">
             <h4>Published</h4>
-            <time pubdate="pubdate" datetime="2012-01-19T01:55:52+01:00">Jan 19, 2012</time>
+            <time pubdate="pubdate" datetime="2012-04-25T22:30:00+02:00">Apr 25, 2012</time>
             <h4>Category</h4>
-            <a class="category-link" href="http://jeffmax.io/categories.html#vim-ref">Vim</a>
-            <h4>Tags</h4>
-            <ul class="list-of-tags tags-in-article">
-                <li><a href="http://jeffmax.io/tags.html#vim-ref">vim
-                    <span>1</span>
-</a></li>
-            </ul>
+            <a class="category-link" href="http://jeffmax.io/categories.html#misc-ref">misc</a>
 <h4>Contact</h4>
     <a href="http://twitter.com/jeffmaxlive" title="My twitter Profile" class="sidebar-social-links" target="_blank">
     <i class="fa fa-twitter sidebar-social-links"></i></a>

@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="jeffmax" />
+        <meta name="copyright" content="jeffmax" />
+
+        <meta name="twitter:creator" content="@jeffmaxlive">
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="statistics, stats, anova, linear regression, statisticss, " />
+
+<meta property="og:title" content="Visualizing Linear Regression and ANOVA "/>
+<meta property="og:url" content="http://jeffmax.io/visualizing-linear-regression-and-anova.html" />
+<meta property="og:description" content="ANOVA and Linear Regression¶This notebook is meant to provide intuition behind how ANOVA and Linear Regression are the same model. First we need to import a few libraries and setup some data. Our fake data here is meant to show how fast in hours a drug relieves symptoms. We want to see if there is a difference between a control (placebo), regular, and extra strength version of the medications." />
+<meta property="og:site_name" content="jeffmax&#39;s blog" />
+<meta property="og:article:author" content="jeffmax" />
+<meta property="og:article:published_time" content="2015-11-30T10:20:00+01:00" />
+<meta name="twitter:title" content="Visualizing Linear Regression and ANOVA ">
+<meta name="twitter:description" content="ANOVA and Linear Regression¶This notebook is meant to provide intuition behind how ANOVA and Linear Regression are the same model. First we need to import a few libraries and setup some data. Our fake data here is meant to show how fast in hours a drug relieves symptoms. We want to see if there is a difference between a control (placebo), regular, and extra strength version of the medications.">
+
+        <title>Visualizing Linear Regression and ANOVA  · jeffmax&#39;s blog
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="http://jeffmax.io/theme/css/pygments.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://jeffmax.io/theme/tipuesearch/tipuesearch.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://jeffmax.io/theme/css/elegant.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="http://jeffmax.io/theme/css/custom.css" media="screen">
+        <link rel="shortcut icon" href="http://jeffmax.io/theme/images/favicon.ico" type="image/x-icon" type="image/png" />
+        <link rel="icon" href="http://jeffmax.io/theme/images/apple-touch-icon-152x152.png" type="image/png" />
+        <link rel="apple-touch-icon" href="http://jeffmax.io/theme/images/apple-touch-icon.png"  type="image/png" />
+        <link rel="apple-touch-icon" sizes="57x57" href="http://jeffmax.io/theme/images/apple-touch-icon-57x57.png" type="image/png" />
+        <link rel="apple-touch-icon" sizes="72x72" href="http://jeffmax.io/theme/images/apple-touch-icon-72x72.png" type="image/png" />
+        <link rel="apple-touch-icon" sizes="76x76" href="http://jeffmax.io/theme/images/apple-touch-icon-76x76.png" type="image/png" />
+        <link rel="apple-touch-icon" sizes="114x114" href="http://jeffmax.io/theme/images/apple-touch-icon-114x114.png" type="image/png" />
+        <link rel="apple-touch-icon" sizes="120x120" href="http://jeffmax.io/theme/images/apple-touch-icon-120x120.png" type="image/png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="http://jeffmax.io/theme/images/apple-touch-icon-144x144.png" type="image/png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="http://jeffmax.io/theme/images/apple-touch-icon-152x152.png" type="image/png" />
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-22723022-3', 'auto');
+    ga('send', 'pageview');
+</script>
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <div class="span1"></div>
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="http://jeffmax.io/"><span class=site-name>jeffmax's blog</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="http://jeffmax.io">Home</a></li>
+                            <li ><a href="http://jeffmax.io/categories.html">Categories</a></li>
+                            <li ><a href="http://jeffmax.io/tags.html">Tags</a></li>
+                            <li ><a href="http://jeffmax.io/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="http://jeffmax.io/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="http://jeffmax.io/visualizing-linear-regression-and-anova.html"> Visualizing Linear Regression and ANOVA  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            
+            <style type="text/css">/*!
+*
+* IPython notebook
+*
+*/.ansibold{font-weight:700}.ansiblack{}.ansired{color:#8b0000}.ansigreen{6400}.ansiyellow{color:#c4a000}.ansiblue{8b}.ansipurple{color:#9400d3}.ansicyan{color:#4682b4}.ansigray{color:gray}.ansibgblack{background-}.ansibgred{background-color:red}.ansibggreen{background-color:green}.ansibgyellow{background-color:#ff0}.ansibgblue{background-f}.ansibgpurple{background-color:#ff00ff}.ansibgcyan{background-ff}.ansibggray{background-color:gray}div.cell{border:1px solid transparent;display:-webkit-box;-webkit-box-orient:vertical;display:-moz-box;-moz-box-orient:vertical;display:box;box-orient:vertical;box-align:stretch;display:flex;flex-direction:column;align-items:stretch;border-radius:2px;box-sizing:border-box;-moz-box-sizing:border-box;border-width:thin;border-style:solid;width:100%;padding:5px;margin:0;outline:0}div.cell.selected{border-color:#ababab}@media print{div.cell.selected{border-color:transparent}}.edit_mode div.cell.selected{border-color:green}.prompt{min-width:14ex;padding:.4em;margin:0;font-family:monospace;text-align:right;line-height:1.21429em}div.inner_cell{display:-webkit-box;-webkit-box-orient:vertical;display:-moz-box;-moz-box-orient:vertical;display:box;box-orient:vertical;box-align:stretch;display:flex;flex-direction:column;align-items:stretch;-webkit-box-flex:1;-moz-box-flex:1;box-flex:1;flex:1}@-moz-document url-prefix(){div.inner_cell{overflow-x:hidden}}div.input_area{border:1px solid #cfcfcf;border-radius:2px;background:#f7f7f7;line-height:1.21429em}div.prompt:empty{padding-top:0;padding-bottom:0}div.unrecognized_cell{padding:5px 5px 5px 0;display:-webkit-box;-webkit-box-orient:horizontal;display:-moz-box;-moz-box-orient:horizontal;display:box;box-orient:horizontal;box-align:stretch;display:flex;flex-direction:row;align-items:stretch}div.unrecognized_cell .inner_cell{border-radius:2px;padding:5px;font-weight:700;color:red;border:1px solid #cfcfcf;background:#eaeaea}div.unrecognized_cell .inner_cell a,div.unrecognized_cell .inner_cell a:hover{color:inherit;text-decoration:none}@media (max-width:540px){.prompt{text-align:left}div.unrecognized_cell>div.prompt{display:none}}div.code_cell{}div.input{page-break-inside:avoid;display:-webkit-box;-webkit-box-orient:horizontal;display:-moz-box;-moz-box-orient:horizontal;display:box;box-orient:horizontal;box-align:stretch;display:flex;flex-direction:row;align-items:stretch}@media (max-width:540px){div.input{-webkit-box-orient:vertical;-moz-box-orient:vertical;box-orient:vertical;box-align:stretch;display:flex;flex-direction:column;align-items:stretch}}div.input_prompt{color:navy;border-top:1px solid transparent}div.input_area>div.highlight{margin:.4em;border:none;padding:0;background-color:transparent}div.input_area>div.highlight>pre{margin:0;border:none;padding:0;background-color:transparent}.CodeMirror{line-height:1.21429em;font-size:14px;height:auto;background:0 0}.CodeMirror-scroll{overflow-y:hidden;overflow-x:auto}.CodeMirror-lines{padding:.4em}.CodeMirror-linenumber{padding:0 8px 0 4px}.CodeMirror-gutters{border-bottom-left-radius:2px;border-top-left-radius:2px}.CodeMirror pre{padding:0;border:0;border-radius:0}.highlight-base,.highlight-variable{}.highlight-variable-2{color:#1a1a1a}.highlight-variable-3{color:#333}.highlight-string{color:#BA2121}.highlight-comment{color:#408080;font-style:italic}.highlight-number{80}.highlight-atom{color:#88F}.highlight-keyword{color:green;font-weight:700}.highlight-builtin{color:green}.highlight-error{color:red}.highlight-operator{color:#A2F;font-weight:700}.highlight-meta{color:#A2F}.highlight-def{f}.highlight-string-2{color:#f50}.highlight-qualifier{color:#555}.highlight-bracket{color:#997}.highlight-tag{color:#170}.highlight-attribute{c}.highlight-header{f}.highlight-quote{90}.highlight-link{c}.cm-s-ipython span.cm-keyword{color:green;font-weight:700}.cm-s-ipython span.cm-atom{color:#88F}.cm-s-ipython span.cm-number{80}.cm-s-ipython span.cm-def{f}.cm-s-ipython span.cm-variable{}.cm-s-ipython span.cm-operator{color:#A2F;font-weight:700}.cm-s-ipython span.cm-variable-2{color:#1a1a1a}.cm-s-ipython span.cm-variable-3{color:#333}.cm-s-ipython span.cm-comment{color:#408080;font-style:italic}.cm-s-ipython span.cm-string{color:#BA2121}.cm-s-ipython span.cm-string-2{color:#f50}.cm-s-ipython span.cm-meta{color:#A2F}.cm-s-ipython span.cm-qualifier{color:#555}.cm-s-ipython span.cm-builtin{color:green}.cm-s-ipython span.cm-bracket{color:#997}.cm-s-ipython span.cm-tag{color:#170}.cm-s-ipython span.cm-attribute{c}.cm-s-ipython span.cm-header{f}.cm-s-ipython span.cm-quote{90}.cm-s-ipython span.cm-link{c}.cm-s-ipython span.cm-error{color:red}.cm-s-ipython span.cm-tab{background:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAMCAYAAAAkuj5RAAAAAXNSR0IArs4c6QAAAGFJREFUSMft1LsRQFAQheHPowAKoACx3IgEKtaEHujDjORSgWTH/ZOdnZOcM/sgk/kFFWY0qV8foQwS4MKBCS3qR6ixBJvElOobYAtivseIE120FaowJPN75GMu8j/LfMwNjh4HUpwg4LUAAAAASUVORK5CYII=')right no-repeat}div.output_wrapper{display:-webkit-box;-webkit-box-align:stretch;display:-moz-box;-moz-box-align:stretch;display:box;box-orient:vertical;box-align:stretch;display:flex;flex-direction:column;align-items:stretch;z-index:1}div.output_scroll{height:24em;width:100%;overflow:auto;border-radius:2px;-webkit-box-shadow:inset 0 2px 8px rgba(0,0,0,.8);box-shadow:inset 0 2px 8px rgba(0,0,0,.8);display:block}div.output_collapsed{margin:0;padding:0;display:-webkit-box;-webkit-box-orient:vertical;display:-moz-box;-moz-box-orient:vertical;display:box;box-orient:vertical;box-align:stretch;display:flex;flex-direction:column;align-items:stretch}div.out_prompt_overlay{height:100%;padding:0 .4em;position:absolute;border-radius:2px}div.out_prompt_overlay:hover{-webkit-box-shadow:inset 0 0 1px #000;box-shadow:inset 0 0 1px #000;background:rgba(240,240,240,.5)}div.output_prompt{color:#8b0000}div.output_area{padding:0;page-break-inside:avoid;display:-webkit-box;-webkit-box-orient:horizontal;display:-moz-box;-moz-box-orient:horizontal;display:box;box-orient:horizontal;box-align:stretch;display:flex;flex-direction:row;align-items:stretch}div.output_area .MathJax_Display{text-align:left!important}div.output_area div.output_area img,div.output_area svg{max-width:100%;height:auto}div.output_area img.unconfined,div.output_area svg.unconfined{max-width:none}.output{display:-webkit-box;-webkit-box-orient:vertical;display:-moz-box;-moz-box-orient:vertical;display:box;box-orient:vertical;box-align:stretch;display:flex;flex-direction:column;align-items:stretch}@media (max-width:540px){div.output_area{-webkit-box-orient:vertical;-moz-box-orient:vertical;box-orient:vertical;box-align:stretch;display:flex;flex-direction:column;align-items:stretch}}div.output_area pre{margin:0;padding:0;border:0;vertical-align:baseline;background-color:transparent;border-radius:0}div.output_subarea{overflow-x:auto;padding:.4em;-webkit-box-flex:1;-moz-box-flex:1;box-flex:1;flex:1;max-width:calc(100% - 14ex)}div.output_text{text-align:left;line-height:1.21429em}div.output_stderr{background:#fdd}div.output_latex{text-align:left}div.output_javascript:empty{padding:0}.js-error{color:#8b0000}div.raw_input_container{font-family:monospace;padding-top:5px}span.raw_input_prompt{}input.raw_input{font-family:inherit;font-size:inherit;color:inherit;width:auto;vertical-align:baseline;padding:0 .25em;margin:0 .25em}input.raw_input:focus{box-shadow:none}p.p-space{margin-bottom:10px}div.output_unrecognized{padding:5px;font-weight:700;color:red}div.output_unrecognized a,div.output_unrecognized a:hover{color:inherit;text-decoration:none}.rendered_html{}.rendered_html :link,.rendered_html :visited,.rendered_html h1:first-child{margin-top:.538em}.rendered_html h2:first-child{margin-top:.636em}.rendered_html h3:first-child{margin-top:.777em}.rendered_html h4:first-child,.rendered_html h5:first-child,.rendered_html h6:first-child{margin-top:1em}.rendered_html *+ol,.rendered_html *+ul{margin-top:1em}.rendered_html *+table{margin-top:1em}.rendered_html *+p{margin-top:1em}.rendered_html *+img{margin-top:1em}div.text_cell{display:-webkit-box;-webkit-box-orient:horizontal;display:-moz-box;-moz-box-orient:horizontal;display:box;box-orient:horizontal;box-align:stretch;display:flex;flex-direction:row;align-items:stretch}@media (max-width:540px){div.text_cell>div.prompt{display:none}}div.text_cell_render{outline:0;resize:none;width:inherit;border-style:none;padding:.5em .5em .5em .4em;box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box}a.anchor-link:link{text-decoration:none;padding:0 20px;visibility:hidden}h1:hover .anchor-link,h2:hover .anchor-link,h3:hover .anchor-link,h4:hover .anchor-link,h5:hover .anchor-link,h6:hover .anchor-link{visibility:visible}.text_cell.rendered .input_area{display:none}.text_cell.rendered .text_cell.unrendered .text_cell_render{display:none}.cm-header-1,.cm-header-2,.cm-header-3,.cm-header-4,.cm-header-5,.cm-header-6{font-weight:700;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}.cm-header-1{font-size:185.7%}.cm-header-2{font-size:157.1%}.cm-header-3{font-size:128.6%}.cm-header-4{font-size:110%}.cm-header-5,.cm-header-6{font-size:100%;font-style:italic}</style>
+<style type="text/css">.highlight .hll { background-color: #ffffcc }
+.highlight  { background: #f8f8f8; }
+.highlight .c { color: #408080; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #FF0000 } /* Error */
+.highlight .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight .o { color: #666666 } /* Operator */
+.highlight .cm { color: #408080; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #BC7A00 } /* Comment.Preproc */
+.highlight .c1 { color: #408080; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #408080; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .gr { color: #FF0000 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #00A000 } /* Generic.Inserted */
+.highlight .go { color: #888888 } /* Generic.Output */
+.highlight .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #0044DD } /* Generic.Traceback */
+.highlight .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #B00040 } /* Keyword.Type */
+.highlight .m { color: #666666 } /* Literal.Number */
+.highlight .s { color: #BA2121 } /* Literal.String */
+.highlight .na { color: #7D9029 } /* Name.Attribute */
+.highlight .nb { color: #008000 } /* Name.Builtin */
+.highlight .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.highlight .no { color: #880000 } /* Name.Constant */
+.highlight .nd { color: #AA22FF } /* Name.Decorator */
+.highlight .ni { color: #999999; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #0000FF } /* Name.Function */
+.highlight .nl { color: #A0A000 } /* Name.Label */
+.highlight .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #19177C } /* Name.Variable */
+.highlight .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #bbbbbb } /* Text.Whitespace */
+.highlight .mf { color: #666666 } /* Literal.Number.Float */
+.highlight .mh { color: #666666 } /* Literal.Number.Hex */
+.highlight .mi { color: #666666 } /* Literal.Number.Integer */
+.highlight .mo { color: #666666 } /* Literal.Number.Oct */
+.highlight .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight .si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+.highlight .sx { color: #008000 } /* Literal.String.Other */
+.highlight .sr { color: #BB6688 } /* Literal.String.Regex */
+.highlight .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight .vc { color: #19177C } /* Name.Variable.Class */
+.highlight .vg { color: #19177C } /* Name.Variable.Global */
+.highlight .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight .il { color: #666666 } /* Literal.Number.Integer.Long */</style>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="ANOVA-and-Linear-Regression">ANOVA and Linear Regression<a class="anchor-link" href="#ANOVA-and-Linear-Regression">¶</a></h1><p>This notebook is meant to provide intuition behind how ANOVA and Linear Regression are the same model.</p>
+<p>First we need to import a few libraries and setup some data. Our fake data here is meant to show how fast in hours a drug relieves symptoms. We want to see if there is a difference between a control (placebo), regular, and extra strength version of the medications.</p>
+<p>Before looking at this notebook, this StackOverflow question is a good place to get a nice idea of what ANOVA is doing <a href="http://stats.stackexchange.com/questions/5278/how-to-visualize-what-anova-does/5280#5280">http://stats.stackexchange.com/questions/5278/how-to-visualize-what-anova-does/5280#5280</a> as well as this blog post <a href="http://rpsychologist.com/d3-one-way-anova">http://rpsychologist.com/d3-one-way-anova</a>.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [2]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="kn">from</span> <span class="nn">pandas</span> <span class="k">import</span> <span class="n">DataFrame</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">statsmodels.stats.anova</span> <span class="k">import</span> <span class="n">anova_lm</span>
+<span class="kn">from</span> <span class="nn">statsmodels.formula.api</span> <span class="k">import</span> <span class="n">ols</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="k">import</span> <span class="n">Axes3D</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">set_style</span><span class="p">(</span><span class="s">"whitegrid"</span><span class="p">)</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="n">data_stacked</span> <span class="o">=</span> <span class="p">{</span>
+<span class="s">'hour'</span><span class="p">:</span> <span class="p">[</span> <span class="mi">22</span><span class="p">,</span> <span class="mf">13.5</span><span class="p">,</span> <span class="mf">21.5</span><span class="p">,</span> <span class="mf">20.5</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">33</span><span class="p">,</span> <span class="mf">32.5</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mf">27.5</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">28</span><span class="p">],</span>
+<span class="s">'treatment'</span><span class="p">:</span> <span class="p">[</span><span class="s">'control'</span><span class="p">,</span> 
+              <span class="s">'control'</span><span class="p">,</span> 
+              <span class="s">'control'</span><span class="p">,</span> 
+              <span class="s">'control'</span><span class="p">,</span> 
+              <span class="s">'control'</span><span class="p">,</span> 
+              <span class="s">'control'</span><span class="p">,</span> 
+              <span class="s">'regular'</span><span class="p">,</span> 
+              <span class="s">'regular'</span><span class="p">,</span> 
+              <span class="s">'regular'</span><span class="p">,</span> 
+              <span class="s">'regular'</span><span class="p">,</span> 
+              <span class="s">'regular'</span><span class="p">,</span> 
+              <span class="s">'regular'</span><span class="p">,</span> 
+              <span class="s">'extra'</span><span class="p">,</span> 
+              <span class="s">'extra'</span><span class="p">,</span> 
+              <span class="s">'extra'</span><span class="p">,</span> 
+              <span class="s">'extra'</span><span class="p">,</span> 
+              <span class="s">'extra'</span><span class="p">,</span> 
+              <span class="s">'extra'</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>/usr/local/lib/python3.4/site-packages/matplotlib/__init__.py:872: UserWarning: axes.color_cycle is deprecated and replaced with axes.prop_cycle; please use the latter.
+  warnings.warn(self.msg_depr % (key, alt_key))
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Next we use statsmodels to run an ANOVA on our data and view the results.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [14]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">df</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">data_stacked</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">ols</span><span class="p">(</span><span class="s">'hour ~ C(treatment)'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+<span class="n">fit</span> <span class="o">=</span> <span class="n">anova_lm</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">())</span>
+<span class="n">fit</span><span class="o">.</span><span class="n">F</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area"><div class="prompt output_prompt">Out[14]:</div>
+<div class="output_text output_subarea output_execute_result">
+<pre>12.327660801845996</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can see here that our ANOVA has a relatively large F-Value indicating that one or more of the group means differ from one another. We can visualize this by take a look at the three different groups side-by-side. Visualization inspired from <a href="https://github.com/thomas-haslwanter/statsintro_python/blob/master/ipynb/8_anovaOneway.ipynb">https://github.com/thomas-haslwanter/statsintro_python/blob/master/ipynb/8_anovaOneway.ipynb</a>, which is also a great resource for statistics in Python.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [4]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">axes</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">6</span><span class="p">,</span> <span class="n">data_stacked</span><span class="p">[</span><span class="s">"hour"</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">6</span><span class="p">],</span> <span class="s">'d'</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mi">6</span><span class="p">,</span> <span class="n">data_stacked</span><span class="p">[</span><span class="s">"hour"</span><span class="p">][</span><span class="mi">6</span><span class="p">:</span><span class="mi">12</span><span class="p">],</span> <span class="s">'d'</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="mi">6</span><span class="p">,</span> <span class="n">data_stacked</span><span class="p">[</span><span class="s">"hour"</span><span class="p">][</span><span class="mi">12</span><span class="p">:</span><span class="mi">18</span><span class="p">],</span> <span class="s">'d'</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_xbound</span><span class="p">([</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">2.5</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area"><div class="prompt"></div>
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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
+gg==
+">
+</img></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Visually, it looks the groups may have different means (or at least some of them differ). The results of the ANOVA back up this intuition. The numerator of the F-statistic is the variance between groups, and the denominator is the variance within groups. Intuitively, the larger F-statistic means that the variance between groups overshadows the variance within groups which indicates that the means of one or more of the groups likely differ. See here for more <a href="https://en.wikipedia.org/wiki/F-test#Multiple-comparison_ANOVA_problems">https://en.wikipedia.org/wiki/F-test#Multiple-comparison_ANOVA_problems</a></p>
+<p>So what does this have to do with a linear regression? It turns out they are really the same thing but it requires that we re-code our variables using "dummy-coding" before running the regression. This means we create a new variable for each feature or group. The variable is equal to 1 when the depedendent variable (here, hours to relief) is from that group, and 0 when it is not. You only N - 1 dummy variables to represent N groups, because when the N - 1 variables are set to 0 it indicates that the dependent variable (hour) is from the left-out "reference" group. We will use the get_dummies function from the Pandas library below to create these new variables for us. After that, we will run a regression and confirm our resulting F-Value is the same as the ANOVA.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [5]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">dummies</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">treatment</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s">'trt'</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span>
+<span class="n">full_model</span> <span class="o">=</span> <span class="n">ols</span><span class="p">(</span><span class="s">"hour ~ trt_regular + trt_extra"</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">dummies</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">"F-value: %f"</span> <span class="o">%</span> <span class="n">full_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span><span class="o">.</span><span class="n">fvalue</span><span class="p">)</span>
+<span class="n">full_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span><span class="o">.</span><span class="n">params</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>F-value: 12.327661
+</pre>
+</div>
+</div>
+<div class="output_area"><div class="prompt output_prompt">Out[5]:</div>
+<div class="output_text output_subarea output_execute_result">
+<pre>Intercept      19.916667
+trt_regular     8.833333
+trt_extra       5.333333
+dtype: float64</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The F-Value is the same. Now in the context of a regression, the F-value compares our current model to the "reduced" model which only contains the intercept (<a href="http://blog.minitab.com/blog/adventures-in-statistics/what-is-the-f-test-of-overall-significance-in-regression-analysis">http://blog.minitab.com/blog/adventures-in-statistics/what-is-the-f-test-of-overall-significance-in-regression-analysis</a>
+). We can think of this as answering the question: "Does the increased complexity of our current model deliver significantly better results than a much simpler model?" A larger F-value indicates that it does. But what does this have to do with the F-Value from ANOVA.</p>
+<p>Let's start by taking away the "extra strength" level of our factor and just looking at a graph of our "dummy variables" for "control" and "regular strength".</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [6]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">dummies</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">lmplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s">'trt_regular'</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s">'hour'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df2</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">12</span><span class="p">,:])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>/usr/local/lib/python3.4/site-packages/matplotlib/__init__.py:892: UserWarning: axes.color_cycle is deprecated and replaced with axes.prop_cycle; please use the latter.
+  warnings.warn(self.msg_depr % (key, alt_key))
+</pre>
+</div>
+</div>
+<div class="output_area"><div class="prompt"></div>
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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
+QAphEZGA/j/nSsvvN431vAAAAABJRU5ErkJggg==
+">
+</img></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Here we only have one dummy variable (because we are looking at only two levels of our factor). The points above 0 (when the dummy variable for "regular strength" is 0) correspond to the control group, and the points above 1 correspond to the "regular strength" group. We have also have the corresponding regression line. As discussed above, our F-test is going to tell us whether this model, with effectively 1 feature, is significantly better than a straight horizontal line (intercept only). Intuitively it looks like the answer here would be yes.</p>
+<p>Below we run the regression and look at the results as well as the same two-level regression as ANOVA.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [7]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">model</span> <span class="o">=</span> <span class="n">ols</span><span class="p">(</span><span class="s">"hour ~ trt_regular"</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">12</span><span class="p">,:])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">"F-value: %f"</span> <span class="o">%</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span><span class="o">.</span><span class="n">fvalue</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span><span class="o">.</span><span class="n">params</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>F-value: 19.574913
+</pre>
+</div>
+</div>
+<div class="output_area"><div class="prompt output_prompt">Out[7]:</div>
+<div class="output_text output_subarea output_execute_result">
+<pre>Intercept      19.916667
+trt_regular     8.833333
+dtype: float64</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [15]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">model</span> <span class="o">=</span> <span class="n">ols</span><span class="p">(</span><span class="s">'hour~ C(treatment)'</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df2</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">12</span><span class="p">,:])</span>
+<span class="n">fit</span> <span class="o">=</span> <span class="n">anova_lm</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">())</span>
+<span class="n">fit</span><span class="o">.</span><span class="n">F</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
+<div class="output_text output_subarea output_execute_result">
+<pre>19.574912891986081</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Again, the F-Values are the same. We can also take a look in the regression coefficients to see what they are telling us about the dataset. The intercept is the mean of the control group.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [9]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">'Control'</span><span class="p">])</span> <span class="c"># This is the intercept</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="output_wrapper">
+<div class="output">
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_text output_error">
+<pre>
+<span class="ansired">---------------------------------------------------------------------------</span>
+<span class="ansired">NameError</span>                                 Traceback (most recent call last)
+<span class="ansigreen">&lt;ipython-input-9-f0c17b48758c&gt;</span> in <span class="ansicyan">&lt;module&gt;</span><span class="ansiblue">()</span>
+<span class="ansigreen">----&gt; 1</span><span class="ansired"> </span>np<span class="ansiblue">.</span>mean<span class="ansiblue">(</span>data<span class="ansiblue">[</span><span class="ansiblue">&amp;apos;Control&amp;apos;</span><span class="ansiblue">]</span><span class="ansiblue">)</span> <span class="ansired"># This is the intercept</span><span class="ansiblue"></span>
+
+<span class="ansired">NameError</span>: name &amp;apos;data&amp;apos; is not defined</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>and the coefficient for the dummy variable plus the intercept is the mean of the "regular" treatment group.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">'regular'</span><span class="p">])</span> <span class="c"># This is intercept + Coefficient</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You can read more about this here: <a href="http://www.theanalysisfactor.com/why-anova-and-linear-regression-are-the-same-analysis/">http://www.theanalysisfactor.com/why-anova-and-linear-regression-are-the-same-analysis/</a></p>
+<p>So let's look back at the regression with both dummy-coded variables from above and extract formula for the corresponding regression equation (a plane in this case).</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">full_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span><span class="o">.</span><span class="n">params</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If we graph the dummy-coded groups (now in 3 dimensions) and show the plane, we can see that the F-test in this regression compares the two planes in the image, the one with the two dummy-encoded variables, and one contains only the intercept.</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+<div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span class="n">way</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">18</span><span class="p">]</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s">'3d'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">xs</span><span class="o">=</span><span class="n">way</span><span class="p">[</span><span class="s">'trt_regular'</span><span class="p">],</span> <span class="n">ys</span><span class="o">=</span><span class="n">way</span><span class="p">[</span><span class="s">'trt_extra'</span><span class="p">],</span> <span class="n">zs</span><span class="o">=</span><span class="n">way</span><span class="p">[</span><span class="s">'hour'</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">'Extra'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="s">'Hours'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">'Regular'</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ybound</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xbound</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">view_init</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<span class="n">x_surf</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+<span class="n">y_surf</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+<span class="n">x_surf</span><span class="p">,</span> <span class="n">y_surf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x_surf</span><span class="p">,</span> <span class="n">y_surf</span><span class="p">)</span>
+<span class="n">z_surf</span> <span class="o">=</span> <span class="mf">19.9167</span> <span class="o">+</span> <span class="mf">8.8333</span><span class="o">*</span><span class="n">x_surf</span> <span class="o">+</span> <span class="mf">5.3333</span> <span class="o">*</span> <span class="n">y_surf</span> <span class="c"># from the regression above</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span><span class="n">x_surf</span><span class="p">,</span> <span class="n">y_surf</span><span class="p">,</span> <span class="n">z_surf</span><span class="p">,</span> <span class="n">rstride</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span><span class="n">x_surf</span><span class="p">,</span> <span class="n">y_surf</span><span class="p">,</span> <span class="mf">19.9167</span><span class="p">,</span>  <span class="n">rstride</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It may not be completely obvious, but you can imagine that the plane using the two dummy-coded variables (on top) does a better job describing the 3 groups of dummy-coded variables in 3 dimensions than the plane that is described only by the intercept (below).</p>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Other Links</p>
+<p><a href="http://www.unt.edu/rss/class/Jon/MiscDocs/Cohen_1968.pdf">http://www.unt.edu/rss/class/Jon/MiscDocs/Cohen_1968.pdf</a></p>
+<p><a href="https://github.com/justmarkham/DAT4/blob/master/notebooks/08_linear_regression.ipynb">https://github.com/justmarkham/DAT4/blob/master/notebooks/08_linear_regression.ipynb</a></p>
+</div>
+</div>
+</div>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: 'center'," +
+        "    displayIndent: '0em'," +
+        "    showMathMenu: true," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['$','$'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'black ! important'} }" +
+        "    } " +
+        "}); ";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+
+            
+            <section>
+<p id="comment-message">Thanks for reading, please leave any comments or corrections. </p>
+<div class="accordion" id="accordion2">
+    <div class="accordion-group">
+        <div class="accordion-heading">
+            <a class="accordion-toggle disqus-comment-count" data-toggle="collapse" data-parent="#accordion2"
+                href="http://jeffmax.io/visualizing-linear-regression-and-anova.html#disqus_thread">
+                Comments
+            </a>
+        </div>
+        <div id="disqus_thread" class="accordion-body collapse">
+            <div class="accordion-inner">
+                <div class="comments">
+                    <div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'jeffmax';
+        var disqus_identifier = 'http://jeffmax.io/visualizing-linear-regression-and-anova.html';
+    var disqus_url = 'http://jeffmax.io/visualizing-linear-regression-and-anova.html';
+
+    (function() {
+         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+         dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+            <hr/>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2015-11-30T10:20:00+01:00">Nov 30, 2015</time>
+            <h4>Category</h4>
+            <a class="category-link" href="http://jeffmax.io/categories.html#statisticss-ref">statisticss</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="http://jeffmax.io/tags.html#anova-ref">anova
+                    <span>1</span>
+</a></li>
+                <li><a href="http://jeffmax.io/tags.html#linear-regression-ref">linear regression
+                    <span>1</span>
+</a></li>
+                <li><a href="http://jeffmax.io/tags.html#statistics-ref">statistics
+                    <span>2</span>
+</a></li>
+                <li><a href="http://jeffmax.io/tags.html#stats-ref">stats
+                    <span>1</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="http://twitter.com/jeffmaxlive" title="My twitter Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-twitter sidebar-social-links"></i></a>
+    <a href="http://github.com/jeffmax" title="My github Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-github sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+            <script type="text/javascript">
+var disqus_shortname = 'jeffmax';
+(function () {
+    var s = document.createElement('script'); s.async = true;
+    s.type = 'text/javascript';
+    s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+}());
+</script>
+<script  language="javascript" type="text/javascript">
+function uncollapse() {
+    if (window.location.hash.match(/^#comment-\d+$/)) {
+        $('#disqus_thread').collapse('show');
+    }
+}
+</script>
+<script type="text/javascript" language="JavaScript">
+uncollapse();
+window.onhashchange=function(){
+    if (window.location.hash.match(/^#comment-\d+$/))
+        window.location.reload(true);
+}
+</script>
+<script>
+$('#disqus_thread').on('shown', function () {
+    var link = document.getElementsByClassName('accordion-toggle');
+    var old_innerHTML = link[0].innerHTML;
+    $(link[0]).fadeOut(500, function() {
+        $(this).text('Click here to hide comments').fadeIn(500);
+    });
+    $('#disqus_thread').on('hidden', function () {
+        $(link[0]).fadeOut(500, function() {
+            $(this).text(old_innerHTML).fadeIn(500);
+        });
+    })
+})
+</script>
+
+
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>
