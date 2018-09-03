@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>jeffmax's blog - jeffmax</title><link href="http://jeffmax.io/" rel="alternate"></link><link href="http://jeffmax.io/feeds/jeffmax.atom.xml" rel="self"></link><id>http://jeffmax.io/</id><updated>2018-09-01T10:20:00+02:00</updated><entry><title>Tips for R's data.table</title><link href="http://jeffmax.io/tips-for-rs-datatable.html" rel="alternate"></link><published>2018-09-01T10:20:00+02:00</published><updated>2018-09-01T10:20:00+02:00</updated><author><name>jeffmax</name></author><id>tag:jeffmax.io,2018-09-01:/tips-for-rs-datatable.html</id><summary type="html">&lt;p&gt;Learn to use the data.table library in R&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Introduction to data.table&lt;/h2&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>jeffmax's blog - jeffmax</title><link href="http://jeffmax.io/" rel="alternate"></link><link href="http://jeffmax.io/feeds/jeffmax.atom.xml" rel="self"></link><id>http://jeffmax.io/</id><updated>2018-09-01T10:20:00+02:00</updated><entry><title>Notes on data.table in R</title><link href="http://jeffmax.io/notes-on-datatable-in-r.html" rel="alternate"></link><published>2018-09-01T10:20:00+02:00</published><updated>2018-09-01T10:20:00+02:00</updated><author><name>jeffmax</name></author><id>tag:jeffmax.io,2018-09-01:/notes-on-datatable-in-r.html</id><summary type="html">&lt;p&gt;Notes on using data.table&lt;/p&gt;</summary><content type="html">&lt;h1&gt;Introduction to data.table&lt;/h1&gt;
 &lt;p&gt;data.table is an extension of R's data.frame for working with large datasets. At the expense of a more complex syntax, data.table provides an efficient framework for filtering and manipulating large, multi-table, in-memory datasets. Major features include:&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;Fast import of csv files via &lt;a href="https://www.rdocumentation.org/packages/data.table/versions/1.11.4/topics/fread"&gt;fread()&lt;/a&gt;&lt;/li&gt;
@@ -7,16 +7,9 @@
 &lt;li&gt;Support for assignment by reference.&lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;Instead of re-hashing an introduction here, I would suggest reading the &lt;a href="https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html"&gt;intro vignette in the data.table&lt;/a&gt; documentation. &lt;/p&gt;
-&lt;h3&gt;Other useful data.table links&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href="https://s3.amazonaws.com/assets.datacamp.com/img/blog/data+table+cheat+sheet.pdf"&gt;Cheat Sheet&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://github.com/Rdatatable/data.table/wiki"&gt;Wiki&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="https://rawgit.com/wiki/Rdatatable/data.table/vignettes/datatable-faq.html"&gt;FAQ&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="http://brooksandrew.github.io/simpleblog/articles/advanced-data-table/"&gt;Advanced data table&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2&gt;data.table notes&lt;/h2&gt;
-&lt;h3&gt;Joins&lt;/h3&gt;
-&lt;h4&gt;Joins as Subsetting&lt;/h4&gt;
+&lt;h1&gt;data.table notes&lt;/h1&gt;
+&lt;h2&gt;Joins&lt;/h2&gt;
+&lt;h3&gt;Joins as Subsetting&lt;/h3&gt;
 &lt;p&gt;When first using data.table, I kept referring to the this &lt;a href="https://rstudio-pubs-static.s3.amazonaws.com/52230_5ae0d25125b544caab32f75f0360e775.html"&gt;guide&lt;/a&gt; to remember how to do inner joins and outer joins. However, the main idea behind joins in data.table is to treat them as a type of subsetting, and if you embrace this idea, it will become clearer.  Let's assume we have two data.tables, X and Y, and for simplicity's sake, we will assume that we have setkey on both of them.   &lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;X[Y, nomatch=NA]
 &lt;/pre&gt;&lt;/div&gt;
@@ -31,42 +24,41 @@
 
 
 &lt;p&gt;Take the subset of X, where X's key columns values match Y's key columns values. If there is a set of key values in Y with no corresponding value match in X, do not include the Y or X row. This is the same as Y inner join X (or X inner join Y).&lt;/p&gt;
-&lt;h4&gt;Non-equi joins&lt;/h4&gt;
+&lt;h3&gt;Non-equi joins&lt;/h3&gt;
 &lt;p&gt;By default, the type of join you typically do is an "equi-join" which just means that you join on key columns with values that are "equal".  Sometimes this is not ideal, especially if you are doing a join with something other than an auto-incremeted primary key (or other &lt;a href="https://en.wikipedia.org/wiki/Surrogate_key"&gt;surrogate key&lt;/a&gt;). In other words, if the key you are joining on has some kind of natural meaning (like a timestamp), it might make sense to join on all rows with a time key that is greater or less than your primary key. This could end up saving you a large &lt;a href="https://en.wikipedia.org/wiki/Cartesian_product"&gt;cartesian join&lt;/a&gt; followed by a subsetting. In fact, this might not be just a matter of convenience- if your data is big enough, you may not have enough memory for the cartesian join. &lt;/p&gt;
 &lt;p&gt;The data.table documention refers to non-equi joins and rolling joins (described below) as distinct concepts, but in reality, rolling joins are just one type of non-equi join.&lt;/p&gt;
-&lt;h5&gt;Rolling join&lt;/h5&gt;
+&lt;h4&gt;Rolling join&lt;/h4&gt;
 &lt;p&gt;A rolling join allows you to do join two tables with keys that are not necessarily an exact match, but are within a certain threshold of one another. That is, you can join on a "rolling" window of values. For example, if the primary key for X is 1, and the primary key value for Y is 2, a rolling join could be set up to connect these two rows. This is especially useful for joining two tables on timestamps. Perhaps you want to join table A with the key in table B that comes as close as possiible (or within certain amount of time after) the primary key in table A.  If you are using multi-field keys, the last field that you specify is always used as the rolling field.&lt;/p&gt;
-&lt;h5&gt;Other non-equi joins&lt;/h5&gt;
+&lt;h4&gt;Other non-equi joins&lt;/h4&gt;
 &lt;p&gt;There is another syntax, using the "on" keyword, to do arbitrary non-equi joins using the &amp;gt; , &amp;lt;, &amp;lt;=, and &amp;gt;= operators (as well as, I believe the range keyword). This is not well documented, but is discussed around page 6 of the official &lt;a href="https://cran.r-project.org/web/packages/data.table/data.table.pdf"&gt;data.table documentation&lt;/a&gt;.  I have tested this, and it works well and appears to be quite fast. One note is that the values in the comparisons must be column names- you cannot specify arbitrary functions inside of the &lt;code&gt;on&lt;/code&gt; vector. This means you likely need to make some temporary columns on your tables.  &lt;/p&gt;
 &lt;p&gt;Note that &lt;code&gt;on&lt;/code&gt; keyword technically defines &lt;a href="https://cran.r-project.org/web/packages/data.table/vignettes/datatable-secondary-indices-and-auto-indexing.html"&gt;data.table secondary indices&lt;/a&gt;.&lt;/p&gt;
-&lt;h4&gt;Self joins&lt;/h4&gt;
+&lt;h3&gt;Self joins&lt;/h3&gt;
 &lt;p&gt;There is nothing special about a self join, it is just joining a table to itself. You might want to join rows in the same table to one another, and you can do that. Just be aware, as with any join that has two tables with conflicting column names, data.table will rename the conflicting column names of the table you index by (in the i position) by prefacing the column names with "i.".&lt;/p&gt;
-&lt;h4&gt;.EACHI joins&lt;/h4&gt;
+&lt;h3&gt;.EACHI joins&lt;/h3&gt;
 &lt;p&gt;&lt;code&gt;.EACHI&lt;/code&gt; is a value that you can set the &lt;code&gt;by&lt;/code&gt; keyword to that changes the way a your J clause works in a join. It used to be the default behavior when you were merging two tables while using an aggregate value (like .N) in your J clause, but now you have to specify that you want this behavior (called by-without-by). The best explanation for this is this answer on &lt;a href="https://stackoverflow.com/a/27004566/134930"&gt;Stack Overflow&lt;/a&gt;.  In general, I have found this useful for situations where you would typically need to perform a cartesian join, followed by a grouping with code in J to further select. Or, similarly, using nested for loops to examine all the rows in one table for each row in the another table . X[Y, ,by=.EACHI] effectively lets your perform your J clause (and return a row or rows) for each row in Y, along with all the rows in X that match Y's key.&lt;/p&gt;
 &lt;p&gt;Also, see this &lt;a href="http://ethen8181.github.io/machine-learning/R/data_table/data_table.html#selecting-parts-of-a-filtered-group"&gt;Good explanation of .EACHI&lt;/a&gt;&lt;/p&gt;
-&lt;h3&gt;Other Topics&lt;/h3&gt;
-&lt;h4&gt;Common Tasks&lt;/h4&gt;
-&lt;h5&gt;Creating an Index element/primary key&lt;/h5&gt;
+&lt;h3&gt;Common Tasks&lt;/h3&gt;
+&lt;h4&gt;Creating an Index element/primary key&lt;/h4&gt;
 &lt;p&gt;&lt;a href="#.I"&gt;See &lt;code&gt;.I&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;h5&gt;Find the largest/smallest item of a group&lt;/h5&gt;
+&lt;h4&gt;Find the largest/smallest item of a group&lt;/h4&gt;
 &lt;p&gt;&lt;a href="#.I"&gt;See &lt;code&gt;.I&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
-&lt;h5&gt;Fill/copy down a column&lt;/h5&gt;
+&lt;h4&gt;Fill/copy down a column&lt;/h4&gt;
 &lt;p&gt;If you need to copy/fill down to fill in NA's between defined values, there is a method based on grouping by the cumsum of the is.NA value of the column. See &lt;a href="https://stackoverflow.com/questions/18840628/fill-rows-downward-for-a-column-with-nas-with-r-base-or-data-table"&gt;here&lt;/a&gt;. This is can be pretty useful for performing "lookbacks" on values on rows in a table. It is also pretty trivial to do individual fill downs for subgroups in the table by creating an extra colum on the table containing the value of cumsum calculation after grouping by the variable of concern. &lt;/p&gt;
-&lt;h5&gt;Grouping  commands with &lt;code&gt;{}&lt;/code&gt;&lt;/h5&gt;
+&lt;h4&gt;Grouping  commands with &lt;code&gt;{}&lt;/code&gt;&lt;/h4&gt;
 &lt;p&gt;From &lt;a href="http://brooksandrew.github.io/simpleblog/articles/advanced-data-table/"&gt;Advanced data table&lt;/a&gt;-  this is apparently not really special to data.table, but in the J position of data.table you can group commands, including creating temporary variables. The last line of the block should be a list containing the variables you want to actually return from the selection.  &lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt; &lt;span class="nt"&gt;DT&lt;/span&gt;&lt;span class="cp"&gt;[&lt;/span&gt;&lt;span class="p"&gt;,{&lt;/span&gt;&lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="o"&gt; =&lt;/span&gt; &lt;span class="nx"&gt;a&lt;/span&gt;&lt;span class="err"&gt;[&lt;/span&gt;&lt;span class="nx"&gt;t&lt;/span&gt;&lt;span class="cp"&gt;]&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt; &lt;span class="nt"&gt;list&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nt"&gt;one_var&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nt"&gt;a&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;one_var&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nt"&gt;2&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h4&gt;Special symbols and functions&lt;/h4&gt;
+&lt;h3&gt;Special symbols and functions&lt;/h3&gt;
 &lt;p&gt;(Also see this &lt;a href="https://rdrr.io/cran/data.table/man/special-symbols.html"&gt;reference&lt;/a&gt;)&lt;/p&gt;
-&lt;h5&gt;.N&lt;/h5&gt;
+&lt;h4&gt;.N&lt;/h4&gt;
 &lt;p&gt;Returns the number of rows in the data.table, or when using a group, the number of rows in the group.  Can now be used in the I position, for example, to sample 20 rows from your table&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;DT[sample(.N, 20)]
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h5&gt;.I&lt;/h5&gt;
+&lt;h4&gt;&lt;a name=".I"&gt;&lt;/a&gt; .I&lt;/h4&gt;
 &lt;p&gt;This is a vector containing the index of the rows in the data.table from 1:.N. When using a group by, it is a vector containing the index in the original row in the datable for each row in the current group. Among other things, this can be used to add a primary key to a table with: &lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;DT[,pk:=.I]
 &lt;/pre&gt;&lt;/div&gt;
@@ -78,14 +70,14 @@
 
 
 &lt;p&gt;Note that here &lt;code&gt;V1&lt;/code&gt; is the name of the unspecified column created by selecting in J without specifying a column name.&lt;/p&gt;
-&lt;h5&gt;.SD&lt;/h5&gt;
+&lt;h4&gt;.SD&lt;/h4&gt;
 &lt;p&gt;A data.table equal to the elements in the current group (Subset Data.Table). Can often be quite slow. &lt;/p&gt;
-&lt;h5&gt;J()/CJ()/SJ()&lt;/h5&gt;
+&lt;h4&gt;J()/CJ()/SJ()&lt;/h4&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;code&gt;J()&lt;/code&gt; is an alias for &lt;code&gt;list()&lt;/code&gt; or &lt;code&gt;.()&lt;/code&gt; inside in the I/subset section inside of a data.table. It does nothing else and is generally deprecated.&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;CJ()&lt;/code&gt;/&lt;code&gt;SJ()&lt;/code&gt; These are convenience functions that can be used inside the I section of a data.table or outside to do a cross or sorted join, respectively. I have not yet used them. See &lt;a href="https://www.rdocumentation.org/packages/data.table/versions/1.11.4/topics/J"&gt;here&lt;/a&gt;.     &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h5&gt;get function /  &lt;code&gt;():=&lt;/code&gt;&lt;/h5&gt;
+&lt;h4&gt;get function /  &lt;code&gt;():=&lt;/code&gt;&lt;/h4&gt;
 &lt;p&gt;If you need to subset or select in J on a column name, but the column name you want to filter by is contained in a string variable, you can use the &lt;code&gt;get&lt;/code&gt; function.  &lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;var_col=&amp;quot;temperature&amp;quot;;DT[get(var_col)==50]
 &lt;/pre&gt;&lt;/div&gt;
@@ -101,9 +93,9 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h5&gt;set function&lt;/h5&gt;
+&lt;h4&gt;set function&lt;/h4&gt;
 &lt;p&gt;If you want to update the values of a data.table column in a &lt;code&gt;for&lt;/code&gt; loop, it can be inefficient to use the &lt;code&gt;:=&lt;/code&gt; syntax repeatedly. This function makes it faster for you. I've only seen small speed ups, but could be useful. Generally for loops are not recommended by apparently for some tasks &lt;code&gt;for&lt;/code&gt; loops and set are recommended over using .SD. See http://brooksandrew.github.io/simpleblog/articles/advanced-data-table/&lt;/p&gt;
-&lt;h5&gt;with keyword&lt;/h5&gt;
+&lt;h4&gt;with keyword&lt;/h4&gt;
 &lt;p&gt;This tells data.table whether you want the variable names used in the J position to resolve to column names or to be looked up in the surrounding scope as variables. Default is TRUE (use column names).&lt;/p&gt;
 &lt;h4&gt;Miscellaneous Tips&lt;/h4&gt;
 &lt;ul&gt;
@@ -113,17 +105,17 @@
 &lt;li&gt;Update mutliple columns by reference at once using &lt;code&gt;:=()&lt;/code&gt;,  for example, &lt;code&gt;DT[,':='(new1 = sum(colB), new2 = sum(colC))]&lt;/code&gt;. This is referred to as the functional form.&lt;/li&gt;
 &lt;li&gt;Using variable names intead of columns, for example, &lt;code&gt;colvector = c("colname1", "colname2"); DT[,(colvector) := .(val1, val2)]&lt;/code&gt;.  You can also update multiple columns at once by referring to the column names as string literals in a vector on the left-hand side,&lt;code&gt;DT[, c("temperature","anothercol"):=.(3,4)]&lt;/code&gt;. See &lt;a href="https://jangorecki.gitlab.io/data.table/library/data.table/html/assign.html"&gt;here&lt;/a&gt; for more examples.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h4&gt;Gotchas&lt;/h4&gt;
-&lt;h5&gt;Indexing data.table by a vector of integers vs matching on an integer key&lt;/h5&gt;
+&lt;h3&gt;Gotchas&lt;/h3&gt;
+&lt;h4&gt;Indexing data.table by a vector of integers vs matching on an integer key&lt;/h4&gt;
 &lt;p&gt;Be aware that normally if you pass a vector of values into the I position, this will typically return the rows where the key is equal to one of those values. However, a vector of integers is reserved for returning the rows with those indexes. If you want to return rows based on the value of an integer key, you have to embed the vector in a list   &lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;DT[.(c(1,3,4))]
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;p&gt;Note that this is just the syntax for selecting by multiple keys (indexing by a list of vectors) except we only supply one vector in the list.&lt;/p&gt;
-&lt;h5&gt;Index by a boolean vector (like data.frame) and DT[BOOLEAN COLUMN==TRUE] vs DT[BOOLEAN_COLUMN]&lt;/h5&gt;
-&lt;h6&gt;Indexing by a logical (boolean) vector&lt;/h6&gt;
-&lt;p&gt;With a standard data.frame, the main way to select rows with specific values is to pass a vector of booleans into the first position.  &lt;/p&gt;
+&lt;h4&gt;Index by a boolean vector (like data.frame) and DT[BOOLEAN COLUMN==TRUE] vs DT[BOOLEAN_COLUMN]&lt;/h4&gt;
+&lt;p&gt;&lt;em&gt;Indexing by a logical (boolean) vector &lt;/em&gt;
+With a standard data.frame, the main way to select rows with specific values is to pass a vector of booleans into the first position.  &lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;DF[DF$A==5]
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -134,8 +126,15 @@
 
 
 &lt;p&gt;This is useful when you want to subset by some calculation you have done elsewhere. Keep in mind you can do &lt;code&gt;DT[DT$A==5]&lt;/code&gt;, but this is generally not done since &lt;code&gt;DT&lt;/code&gt; is redundant.&lt;/p&gt;
-&lt;h6&gt;DT[BOOLEAN_COLUMN==TRUE]  vs  DT[BOOLEAN_COLUMN]&lt;/h6&gt;
-&lt;p&gt;The first one works, the second will not. When I is a single variable name, data.table actually looks in the surround scope for the variable (this is what it does in the above example, &lt;code&gt;DT1[s]&lt;/code&gt; for the &lt;code&gt;s&lt;/code&gt; variable. This means you either have to directly compare to a boolean value, or use other &lt;a href="https://stackoverflow.com/questions/16191083/subset-data-table-by-logical-column"&gt;syntax tricks&lt;/a&gt;&lt;/p&gt;</content><category term="statistics"></category><category term="R"></category><category term="data science"></category><category term="data.table"></category></entry><entry><title>Visualizing Linear Regression and ANOVA</title><link href="http://jeffmax.io/visualizing-linear-regression-and-anova.html" rel="alternate"></link><published>2015-11-30T10:20:00+01:00</published><updated>2015-11-30T10:20:00+01:00</updated><author><name>jeffmax</name></author><id>tag:jeffmax.io,2015-11-30:/visualizing-linear-regression-and-anova.html</id><summary type="html">
+&lt;p&gt;&lt;em&gt;DT[BOOLEAN_COLUMN==TRUE]  vs  DT[BOOLEAN_COLUMN]&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;The first one works, the second will not. When I is a single variable name, data.table actually looks in the surround scope for the variable (this is what it does in the above example, &lt;code&gt;DT1[s]&lt;/code&gt; for the &lt;code&gt;s&lt;/code&gt; variable. This means you either have to directly compare to a boolean value, or use other &lt;a href="https://stackoverflow.com/questions/16191083/subset-data-table-by-logical-column"&gt;syntax tricks&lt;/a&gt;&lt;/p&gt;
+&lt;h1&gt;Other useful data.table links&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://s3.amazonaws.com/assets.datacamp.com/img/blog/data+table+cheat+sheet.pdf"&gt;Cheat Sheet&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/Rdatatable/data.table/wiki"&gt;Wiki&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://rawgit.com/wiki/Rdatatable/data.table/vignettes/datatable-faq.html"&gt;FAQ&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://brooksandrew.github.io/simpleblog/articles/advanced-data-table/"&gt;Advanced data table&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="statistics"></category><category term="R"></category><category term="data science"></category><category term="data.table"></category></entry><entry><title>Visualizing Linear Regression and ANOVA</title><link href="http://jeffmax.io/visualizing-linear-regression-and-anova.html" rel="alternate"></link><published>2015-11-30T10:20:00+01:00</published><updated>2015-11-30T10:20:00+01:00</updated><author><name>jeffmax</name></author><id>tag:jeffmax.io,2015-11-30:/visualizing-linear-regression-and-anova.html</id><summary type="html">
 &lt;div class="cell border-box-sizing text_cell rendered"&gt;&lt;div class="prompt input_prompt"&gt;
 &lt;/div&gt;
 &lt;div class="inner_cell"&gt;

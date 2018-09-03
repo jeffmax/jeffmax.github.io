@@ -5,34 +5,34 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://jeffmax.io/</loc>
-<lastmod>2018-09-02T21:48:35-00:00</lastmod>
+<lastmod>2018-09-02T22:04:43-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://jeffmax.io/archives.html</loc>
-<lastmod>2018-09-02T21:48:35-00:00</lastmod>
+<lastmod>2018-09-02T22:04:43-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://jeffmax.io/tags.html</loc>
-<lastmod>2018-09-02T21:48:35-00:00</lastmod>
+<lastmod>2018-09-02T22:04:43-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://jeffmax.io/categories.html</loc>
-<lastmod>2018-09-02T21:48:35-00:00</lastmod>
+<lastmod>2018-09-02T22:04:43-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://jeffmax.io/tips-for-rs-datatable.html</loc>
+<loc>http://jeffmax.io/notes-on-datatable-in-r.html</loc>
 <lastmod>2018-09-01T10:20:00+02:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
