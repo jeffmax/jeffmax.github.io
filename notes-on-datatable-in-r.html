@@ -90,15 +90,15 @@
             <h1>Introduction to data.table</h1>
 <p>data.table is an extension of R's data.frame for working with large datasets. At the expense of a more complex syntax, data.table provides an efficient framework for filtering and manipulating large, multi-table, in-memory datasets. Major features include:</p>
 <ol>
-<li>Fast import of csv files via <a href="https://www.rdocumentation.org/packages/data.table/versions/1.11.4/topics/fread">fread()</a></li>
-<li>Fast and flexible joining separate data.tables via keys</li>
+<li>Fast import of csv files via <a href="https://www.rdocumentation.org/packages/data.table/versions/1.11.4/topics/fread">fread()</a>.</li>
+<li>Fast and flexible joining separate data.tables via keys.</li>
 <li>Support for assignment by reference.</li>
 </ol>
 <p>Instead of re-hashing an introduction here, I would suggest reading the <a href="https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html">intro vignette in the data.table</a> documentation. </p>
 <h1>data.table notes</h1>
 <h2>Joins</h2>
 <h3>Joins as Subsetting</h3>
-<p>When first using data.table, I kept referring to the this <a href="https://rstudio-pubs-static.s3.amazonaws.com/52230_5ae0d25125b544caab32f75f0360e775.html">guide</a> to remember how to do inner joins and outer joins. However, the main idea behind joins in data.table is to treat them as a type of subsetting, and if you embrace this idea, it will become clearer.  Let's assume we have two data.tables, X and Y, and for simplicity's sake, we will assume that we have setkey on both of them.   </p>
+<p>When first using data.table, I kept referring to the this <a href="https://rstudio-pubs-static.s3.amazonaws.com/52230_5ae0d25125b544caab32f75f0360e775.html">guide</a> to remember how to do inner joins and outer joins. However, the main idea behind joins in data.table is to treat them as a type of subsetting, and if you embrace this idea, it will become clearer.  Let's assume we have two data.tables, X and Y, and for simplicity's sake, we will assume that we have called setkey on both of them.   </p>
 <div class="highlight"><pre><span></span>X[Y, nomatch=NA]
 </pre></div>
 
@@ -113,18 +113,18 @@
 
 <p>Take the subset of X, where X's key columns values match Y's key columns values. If there is a set of key values in Y with no corresponding value match in X, do not include the Y or X row. This is the same as Y inner join X (or X inner join Y).</p>
 <h3>Non-equi joins</h3>
-<p>By default, the type of join you typically do is an "equi-join" which just means that you join on key columns with values that are "equal".  Sometimes this is not ideal, especially if you are doing a join with something other than an auto-incremeted primary key (or other <a href="https://en.wikipedia.org/wiki/Surrogate_key">surrogate key</a>). In other words, if the key you are joining on has some kind of natural meaning (like a timestamp), it might make sense to join on all rows with a time key that is greater or less than your primary key. This could end up saving you a large <a href="https://en.wikipedia.org/wiki/Cartesian_product">cartesian join</a> followed by a subsetting. In fact, this might not be just a matter of convenience- if your data is big enough, you may not have enough memory for the cartesian join. </p>
+<p>By default, the type of join you typically do is an "equi-join" which just means that you join on key columns with values that are equal.  Sometimes this is not ideal, especially if you are doing a join with something other than an auto-incremeted primary key (or other <a href="https://en.wikipedia.org/wiki/Surrogate_key">surrogate key</a>). In other words, if the key you are joining on has some kind of natural meaning (like a timestamp), it might make sense to join on all rows with a time key that is greater or less than your primary key. This could end up saving you a large <a href="https://en.wikipedia.org/wiki/Cartesian_product">cartesian join</a> followed by a subsetting. In fact, this might not be just a matter of convenience- if your data is big enough, you may not have enough memory for a full cartesian join. </p>
 <p>The data.table documention refers to non-equi joins and rolling joins (described below) as distinct concepts, but in reality, rolling joins are just one type of non-equi join.</p>
 <h4>Rolling join</h4>
-<p>A rolling join allows you to do join two tables with keys that are not necessarily an exact match, but are within a certain threshold of one another. That is, you can join on a "rolling" window of values. For example, if the primary key for X is 1, and the primary key value for Y is 2, a rolling join could be set up to connect these two rows. This is especially useful for joining two tables on timestamps. Perhaps you want to join table A with the key in table B that comes as close as possiible (or within certain amount of time after) the primary key in table A.  If you are using multi-field keys, the last field that you specify is always used as the rolling field.</p>
+<p>A rolling join allows you to join two tables with keys that are not an exact match, but are within a certain threshold of one another. That is, you can join on a "rolling" window of values. For example, if the primary key for X is 1, and the primary key value for Y is 2, a rolling join could be set up to connect these two rows. This is especially useful for joining two tables on timestamps. Perhaps you want to join table A with the key in table B that comes as close as possiible (or within certain amount of time after) the primary key in table A.  If you are using multi-field keys, the last field that you specify is always used as the rolling field.</p>
 <h4>Other non-equi joins</h4>
 <p>There is another syntax, using the "on" keyword, to do arbitrary non-equi joins using the &gt; , &lt;, &lt;=, and &gt;= operators (as well as, I believe the range keyword). This is not well documented, but is discussed around page 6 of the official <a href="https://cran.r-project.org/web/packages/data.table/data.table.pdf">data.table documentation</a>.  I have tested this, and it works well and appears to be quite fast. One note is that the values in the comparisons must be column names- you cannot specify arbitrary functions inside of the <code>on</code> vector. This means you likely need to make some temporary columns on your tables.  </p>
 <p>Note that <code>on</code> keyword technically defines <a href="https://cran.r-project.org/web/packages/data.table/vignettes/datatable-secondary-indices-and-auto-indexing.html">data.table secondary indices</a>.</p>
 <h3>Self joins</h3>
 <p>There is nothing special about a self join, it is just joining a table to itself. You might want to join rows in the same table to one another, and you can do that. Just be aware, as with any join that has two tables with conflicting column names, data.table will rename the conflicting column names of the table you index by (in the i position) by prefacing the column names with "i.".</p>
 <h3>.EACHI joins</h3>
-<p><code>.EACHI</code> is a value that you can set the <code>by</code> keyword to that changes the way a your J clause works in a join. It used to be the default behavior when you were merging two tables while using an aggregate value (like .N) in your J clause, but now you have to specify that you want this behavior (called by-without-by). The best explanation for this is this answer on <a href="https://stackoverflow.com/a/27004566/134930">Stack Overflow</a>.  In general, I have found this useful for situations where you would typically need to perform a cartesian join, followed by a grouping with code in J to further select. Or, similarly, using nested for loops to examine all the rows in one table for each row in the another table . X[Y, ,by=.EACHI] effectively lets your perform your J clause (and return a row or rows) for each row in Y, along with all the rows in X that match Y's key.</p>
-<p>Also, see this <a href="http://ethen8181.github.io/machine-learning/R/data_table/data_table.html#selecting-parts-of-a-filtered-group">Good explanation of .EACHI</a></p>
+<p><code>.EACHI</code> is a value that you can set the <code>by</code> keyword to that changes the way a your J clause works in a join. It used to be the default behavior when you were merging two tables while using an aggregate value (like .N) in your J clause, but now you have to specify that you want this behavior (called by-without-by). The best explanation for this is this answer on <a href="https://stackoverflow.com/a/27004566/134930">Stack Overflow</a>.  In general, I have found this useful for situations where you would typically need to perform a cartesian join, followed by a grouping with code in J to further select. Or, similarly, using nested for loops to examine all the rows in one table for each row in the another table . X[Y, ,by=.EACHI] effectively lets your perform your J clause (and return a row or rows) for each row in Y, along with all the rows in X that match Y's key.  This may not be the most efficient approach, especially with the availability of non-equi joins described in the prior section.</p>
+<p>Also, see this <a href="http://ethen8181.github.io/Business-Analytics/R/data_table/data_table.html#selecting-parts-of-a-filtered-group">Good explanation of .EACHI</a></p>
 <h3>Common Tasks</h3>
 <h4>Creating an Index element/primary key</h4>
 <p><a href="#.I">See <code>.I</code></a></p>
@@ -147,23 +147,23 @@
 
 
 <h4><a name=".I"></a> .I</h4>
-<p>This is a vector containing the index of the rows in the data.table from 1:.N. When using a group by, it is a vector containing the index in the original row in the datable for each row in the current group. Among other things, this can be used to add a primary key to a table with: </p>
+<p>This is a vector containing the index of the rows in the data.table from 1:.N.  Among other things, this can be used to add a primary key to a table with: </p>
 <div class="highlight"><pre><span></span>DT[,pk:=.I]
 </pre></div>
 
 
-<p>It can also be used to get the entire row corresponding to the maximum value of a particular column in each group:  </p>
+<p>When using a group by, it is a vector containing the index in the original row in the datable for each row in the current group. This can used to get the entire row corresponding to the maximum value of a particular column in each group:  </p>
 <div class="highlight"><pre><span></span>DT[DT[,.I[which.max(time)], by=event_name]$V1]
 </pre></div>
 
 
 <p>Note that here <code>V1</code> is the name of the unspecified column created by selecting in J without specifying a column name.</p>
 <h4>.SD</h4>
-<p>A data.table equal to the elements in the current group (Subset Data.Table). Can often be quite slow. </p>
+<p>A data.table equal to the elements in the current group (Subset Data.Table). Can be quite slow when used.</p>
 <h4>J()/CJ()/SJ()</h4>
 <ul>
 <li><code>J()</code> is an alias for <code>list()</code> or <code>.()</code> inside in the I/subset section inside of a data.table. It does nothing else and is generally deprecated.</li>
-<li><code>CJ()</code>/<code>SJ()</code> These are convenience functions that can be used inside the I section of a data.table or outside to do a cross or sorted join, respectively. I have not yet used them. See <a href="https://www.rdocumentation.org/packages/data.table/versions/1.11.4/topics/J">here</a>.     </li>
+<li><code>CJ()</code>/<code>SJ()</code> are convenience functions that can be used inside the I section of a data.table or outside to do a cross or sorted join, respectively. I have not yet used them. See <a href="https://www.rdocumentation.org/packages/data.table/versions/1.11.4/topics/J">here</a>.     </li>
 </ul>
 <h4>get function /  <code>():=</code></h4>
 <p>If you need to subset or select in J on a column name, but the column name you want to filter by is contained in a string variable, you can use the <code>get</code> function.  </p>
@@ -182,7 +182,7 @@
 
 
 <h4>set function</h4>
-<p>If you want to update the values of a data.table column in a <code>for</code> loop, it can be inefficient to use the <code>:=</code> syntax repeatedly. This function makes it faster for you. I've only seen small speed ups, but could be useful. Generally for loops are not recommended by apparently for some tasks <code>for</code> loops and set are recommended over using .SD. See http://brooksandrew.github.io/simpleblog/articles/advanced-data-table/</p>
+<p>If you want to update the values of a data.table column in a <code>for</code> loop, it can be inefficient to use the <code>:=</code> syntax repeatedly. This function makes it faster for you. I've only seen small speed ups, but could be useful. Generally for loops are not recommended but apparently for some tasks <code>for</code> loops and set are recommended over using .SD. See http://brooksandrew.github.io/simpleblog/articles/advanced-data-table/</p>
 <h4>with keyword</h4>
 <p>This tells data.table whether you want the variable names used in the J position to resolve to column names or to be looked up in the surrounding scope as variables. Default is TRUE (use column names).</p>
 <h4>Miscellaneous Tips</h4>
