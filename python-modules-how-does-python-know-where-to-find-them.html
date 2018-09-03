@@ -7,7 +7,7 @@
         <meta name="author" content="jeffmax" />
         <meta name="copyright" content="jeffmax" />
 
-        <meta name="twitter:creator" content="@jerfmax">
+        <meta name="twitter:creator" content="@jeffmax">
         <meta property="og:type" content="article" />
         <meta name="twitter:card" content="summary">
 
@@ -94,18 +94,18 @@
 <p>He deftly handles a point of confusion I always seem to run into</p>
 <h2><strong>A module and a package are not the same thing.</strong></h2>
 <p>If you are importing a package which would be represented by a directory (on the Python Path) containing a <strong>init</strong>.py file, you cannot assume that</p>
-<div class="highlight"><pre><span class="kn">import</span> <span class="nn">x</span>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">x</span>
 <span class="n">x</span><span class="o">.</span><span class="n">y</span>
 </pre></div>
 
 
 <p>will work for every y that this works for</p>
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">x</span> <span class="kn">import</span> <span class="n">y</span>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">x</span> <span class="kn">import</span> <span class="n">y</span>
 </pre></div>
 
 
 <p>This is because when you import x, you are importing the package x, defined my its <strong>init</strong>.py file. Unless y is explicitly imported in that file like this:</p>
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">y</span>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">y</span>
 </pre></div>
 
 
@@ -131,8 +131,8 @@
 <p>So I guess that answers that. I am sure you have run into situations where pkg_resources was missing. It's likely that was caused my a project needing some of the more specialty features of an egg. I've heard, for example , that you some applications will be installable via their setup.py file without setuptools installed; they just won't run without it.</p>
 <h5>Wherein I ramble on about how "import" might work with eggs without taking the time actually find out the answer</h5>
 <p>The same site points that you can import an egg (and I assume they mean an egg with with data files or c extensions) with this</p>
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pkg_resources</span> <span class="kn">import</span> <span class="n">require</span>
-<span class="n">require</span><span class="p">(</span><span class="s">&quot;FooBar&gt;=1.2&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pkg_resources</span> <span class="kn">import</span> <span class="n">require</span>
+<span class="n">require</span><span class="p">(</span><span class="s2">&quot;FooBar&gt;=1.2&quot;</span><span class="p">)</span>
 </pre></div>
 
 
@@ -204,7 +204,7 @@
 </a></li>
             </ul>
 <h4>Contact</h4>
-    <a href="http://twitter.com/jeffmaxlive" title="My twitter Profile" class="sidebar-social-links" target="_blank">
+    <a href="http://twitter.com/thejeffmax" title="My twitter Profile" class="sidebar-social-links" target="_blank">
     <i class="fa fa-twitter sidebar-social-links"></i></a>
     <a href="http://github.com/jeffmax" title="My github Profile" class="sidebar-social-links" target="_blank">
     <i class="fa fa-github sidebar-social-links"></i></a>

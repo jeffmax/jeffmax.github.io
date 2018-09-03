@@ -7,7 +7,7 @@
         <meta name="author" content="jeffmax" />
         <meta name="copyright" content="jeffmax" />
 
-        <meta name="twitter:creator" content="@jerfmax">
+        <meta name="twitter:creator" content="@jeffmax">
         <meta property="og:type" content="article" />
         <meta name="twitter:card" content="summary">
 
@@ -110,7 +110,7 @@
 </ol>
 <h2>Step 3 Archive your App</h2>
 <p>In XCode, make sure you have "iOS device" selected in the toolbar at the top (the dropdown where you choose which device to run your App on, or which simulator).  Click "Product -&gt; Archive". Once that succeeds, follow the instructions in step 2 thru 6 <a href="http://readwrite.com/2010/12/15/apple-best-kept-secret-how-to-do-ad-hoc-installs#awesm=~onnHAUeZCe9nws">here</a>. You will need to enter the URL where you intend to place the bundle for your users to download. This is because to install your application on their device, users will actually download a .plist file (created in this step), that links to the actual location of your app. As I go into detail below, I put these files on Github Releases, so the location would be something like </p>
-<div class="highlight"><pre><span class="nx">https</span><span class="p">:</span><span class="c1">//github.com/&lt;username&gt;/&lt;repo-name&gt;/releases/download/&lt;release-tag-name&gt;/YourApp.ipa</span>
+<div class="highlight"><pre><span></span>https://github.com/&lt;username&gt;/&lt;repo-name&gt;/releases/download/&lt;release-tag-name&gt;/YourApp.ipa
 </pre></div>
 
 
@@ -118,7 +118,7 @@
 <h2>Step 4 &amp; 5 Put these files somewhere your users can access them and create an HTML page that links to your plist</h2>
 <p>You can put these files anywhere you want, as long as people will be able to download them. Thanks to a suggestion from <a href="https://twitter.com/mitalia">mitalia</a>, I put these on our internal Github using the Releases functionality. You can also use public Github. You just create a release, and attach all three files as binary attachments and Github will store them for you.</p>
 <p>You can just post the .mobileprovision file directly on Github releases. A word of caution, I have no idea what the ramifications are of posting a provisioning profile on the public internet are, it might be advisable to make the Github repository private, or post this file elsewhere. The link that Github Releases automatically generates for files you bundle with your release will work. Just tell your users to click the link on their iOS device, and it will prompt them to install the provisioning profile on the device. Unfortunately, for installing the app itself you need a little more control over the HTML anchor element, so you need to create an HTML file that contains the properly formatted link. <a href="http://jeffreysambells.com/2010/06/22/ios-wireless-app-distribution">This post</a> provides a template HTML index file you can use (and a nice PHP script that makes this simpler if you are not using Github Releases), but effectively you just need to create an HTML page with a link constructed as follows that your users will click on:</p>
-<div class="highlight"><pre> <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;itms-services://?action=download-manifest&amp;url=LINK_TO_YOUR_PLIST_FILE&quot;</span><span class="nt">&gt;</span>Click to install<span class="nt">&lt;/a&gt;</span>
+<div class="highlight"><pre><span></span> <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;itms-services://?action=download-manifest&amp;url=LINK_TO_YOUR_PLIST_FILE&quot;</span><span class="nt">&gt;</span>Click to install<span class="nt">&lt;/a&gt;</span>
 </pre></div>
 
 
@@ -169,7 +169,7 @@
             <h4>Category</h4>
             <a class="category-link" href="http://jeffmax.io/categories.html#ios-ref">ios</a>
 <h4>Contact</h4>
-    <a href="http://twitter.com/jeffmaxlive" title="My twitter Profile" class="sidebar-social-links" target="_blank">
+    <a href="http://twitter.com/thejeffmax" title="My twitter Profile" class="sidebar-social-links" target="_blank">
     <i class="fa fa-twitter sidebar-social-links"></i></a>
     <a href="http://github.com/jeffmax" title="My github Profile" class="sidebar-social-links" target="_blank">
     <i class="fa fa-github sidebar-social-links"></i></a>

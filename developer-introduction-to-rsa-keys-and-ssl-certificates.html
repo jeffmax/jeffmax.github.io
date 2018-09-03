@@ -7,7 +7,7 @@
         <meta name="author" content="jeffmax" />
         <meta name="copyright" content="jeffmax" />
 
-        <meta name="twitter:creator" content="@jerfmax">
+        <meta name="twitter:creator" content="@jeffmax">
         <meta property="og:type" content="article" />
         <meta name="twitter:card" content="summary">
 
@@ -94,7 +94,7 @@
 <h2>Generate an RSA public/private key pair</h2>
 <h3>Private Key</h3>
 <p>As expained <a href="http://stackoverflow.com/questions/5244129/openssl-use-rsa-private-key-to-generate-public-key">here</a></p>
-<div class="highlight"><pre><span class="n">openssl</span> <span class="n">genrsa</span> <span class="o">-</span><span class="n">out</span> <span class="n">privatekey</span><span class="p">.</span><span class="n">pem</span> <span class="mi">1024</span>
+<div class="highlight"><pre><span></span>openssl genrsa -out privatekey.pem 1024
 </pre></div>
 
 
@@ -106,7 +106,7 @@
 </blockquote>
 <h3>Public Key</h3>
 <p>So now we have this .pem file with a private and public key, but if you want to do anything useful with this stuff you will need to be able to share only your public key. So the following extracts your public key</p>
-<div class="highlight"><pre><span class="n">openssl</span> <span class="n">rsa</span> <span class="o">-</span><span class="n">in</span> <span class="n">privatekey</span><span class="p">.</span><span class="n">pem</span> <span class="o">-</span><span class="n">pubout</span> <span class="o">&gt;</span> <span class="n">publickey</span><span class="p">.</span><span class="n">pub</span>
+<div class="highlight"><pre><span></span>openssl rsa -in privatekey.pem -pubout &gt; publickey.pub
 </pre></div>
 
 
@@ -119,17 +119,17 @@
 </ol>
 <h3>Certificates</h3>
 <p>Certificates are useful if you are trying to setup a server for https or just need to work within the confines of a system that works best with certificates. For example, if you wanted to use your public key on iOS, the primitive functions exposed there expect a certificate even if you don't need any kind of chain of ownership. To generate a certificate you use openssl to create a Certificate Signing Request. In our case, we have already have a private/public key pair, so you would the following command</p>
-<div class="highlight"><pre><span class="n">openssl</span> <span class="n">req</span> <span class="o">-</span><span class="n">out</span> <span class="n">CSR</span><span class="p">.</span><span class="n">csr</span> <span class="o">-</span><span class="n">key</span> <span class="n">privatekey</span><span class="p">.</span><span class="n">key</span> <span class="o">-</span><span class="n">new</span>
+<div class="highlight"><pre><span></span>openssl req -out CSR.csr -key privatekey.key -new
 </pre></div>
 
 
 <p>You would then either submit this to an organization that would sign it for you, or sign it yourself to create a self-signed certificate.</p>
-<div class="highlight"><pre><span class="n">openssl</span> <span class="n">x509</span> <span class="o">-</span><span class="n">req</span> <span class="o">-</span><span class="n">days</span> <span class="n">XXX</span> <span class="n">in</span> <span class="n">CSR</span><span class="p">.</span><span class="n">csr</span> <span class="o">-</span><span class="n">signkey</span> <span class="n">privatekey</span><span class="p">.</span><span class="n">pem</span> <span class="o">-</span><span class="n">our</span> <span class="n">server</span><span class="p">.</span><span class="n">crt</span>
+<div class="highlight"><pre><span></span>openssl x509 -req -days XXX in CSR.csr -signkey privatekey.pem -our server.crt
 </pre></div>
 
 
 <p>Ultimately if this was your goal, you could have done everything up to now (except extract the public key) in one step:</p>
-<div class="highlight"><pre><span class="n">openssl</span> <span class="n">req</span> <span class="o">-</span><span class="n">x509</span> <span class="o">-</span><span class="n">newkey</span> <span class="n">rsa</span><span class="o">:</span><span class="mi">2048</span> <span class="o">-</span><span class="n">keyout</span> <span class="n">privatekey</span><span class="p">.</span><span class="n">pem</span> <span class="o">-</span><span class="n">out</span> <span class="n">cert</span><span class="p">.</span><span class="n">crt</span> <span class="o">-</span><span class="n">days</span> <span class="n">XXX</span>
+<div class="highlight"><pre><span></span>openssl req -x509 -newkey rsa:2048 -keyout privatekey.pem -out cert.crt -days XXX
 </pre></div>
 
 
@@ -205,7 +205,7 @@ RSASSA-PSS is newer and seems to be generally recommended- but ultimately either
 </a></li>
             </ul>
 <h4>Contact</h4>
-    <a href="http://twitter.com/jeffmaxlive" title="My twitter Profile" class="sidebar-social-links" target="_blank">
+    <a href="http://twitter.com/thejeffmax" title="My twitter Profile" class="sidebar-social-links" target="_blank">
     <i class="fa fa-twitter sidebar-social-links"></i></a>
     <a href="http://github.com/jeffmax" title="My github Profile" class="sidebar-social-links" target="_blank">
     <i class="fa fa-github sidebar-social-links"></i></a>

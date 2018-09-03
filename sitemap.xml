@@ -5,35 +5,35 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://jeffmax.io/</loc>
-<lastmod>2017-03-23T21:05:38-00:00</lastmod>
+<lastmod>2018-09-02T21:38:46-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://jeffmax.io/archives.html</loc>
-<lastmod>2017-03-23T21:05:38-00:00</lastmod>
+<lastmod>2018-09-02T21:38:46-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://jeffmax.io/tags.html</loc>
-<lastmod>2017-03-23T21:05:38-00:00</lastmod>
+<lastmod>2018-09-02T21:38:46-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>http://jeffmax.io/categories.html</loc>
-<lastmod>2017-03-23T21:05:38-00:00</lastmod>
+<lastmod>2018-09-02T21:38:46-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>http://jeffmax.io/visualizing-linear-regression-and-anova.html</loc>
-<lastmod>2015-11-30T10:20:00+01:00</lastmod>
+<loc>http://jeffmax.io/tips-for-rs-datatable.html</loc>
+<lastmod>2018-09-01T10:20:00+02:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
@@ -55,20 +55,6 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>http://jeffmax.io/distributing-ios-app-updates-to-beta-testers.html</loc>
 <lastmod>2013-11-16T11:38:00+01:00</lastmod>
-<changefreq>monthly</changefreq>
-<priority>0.5</priority>
-</url>
-
-<url>
-<loc>http://jeffmax.io/creating-a-basic-scala-project-in-an-ide.html</loc>
-<lastmod>2013-03-23T10:20:00+01:00</lastmod>
-<changefreq>monthly</changefreq>
-<priority>0.5</priority>
-</url>
-
-<url>
-<loc>http://jeffmax.io/an-impenetrable-guide-to-sbt.html</loc>
-<lastmod>2012-04-25T22:30:00+02:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
