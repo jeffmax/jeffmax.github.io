@@ -201,9 +201,8 @@
 
 
 <p>Note that this is just the syntax for selecting by multiple keys (indexing by a list of vectors) except we only supply one vector in the list.</p>
-<h4>Index by a boolean vector (like data.frame) and DT[BOOLEAN COLUMN==TRUE] vs DT[BOOLEAN_COLUMN]</h4>
-<p><em>Indexing by a logical (boolean) vector </em>
-With a standard data.frame, the main way to select rows with specific values is to pass a vector of booleans into the first position.  </p>
+<h4>Index by a boolean vector (like data.frame)</h4>
+<p>With a standard data.frame, the main way to select rows with specific values is to pass a vector of booleans into the first position.  </p>
 <div class="highlight"><pre><span></span>DF[DF$A==5]
 </pre></div>
 
@@ -214,7 +213,7 @@ With a standard data.frame, the main way to select rows with specific values is 
 
 
 <p>This is useful when you want to subset by some calculation you have done elsewhere. Keep in mind you can do <code>DT[DT$A==5]</code>, but this is generally not done since <code>DT</code> is redundant.</p>
-<p><em>DT[BOOLEAN_COLUMN==TRUE]  vs  DT[BOOLEAN_COLUMN]</em></p>
+<h4>DT[BOOLEAN COLUMN==TRUE] vs DT[BOOLEAN_COLUMN]</h4>
 <p>The first one works, the second will not. When I is a single variable name, data.table actually looks in the surround scope for the variable (this is what it does in the above example, <code>DT1[s]</code> for the <code>s</code> variable. This means you either have to directly compare to a boolean value, or use other <a href="https://stackoverflow.com/questions/16191083/subset-data-table-by-logical-column">syntax tricks</a></p>
 <h1>Other useful data.table links</h1>
 <ul>

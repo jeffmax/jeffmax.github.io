@@ -113,9 +113,8 @@
 
 
 &lt;p&gt;Note that this is just the syntax for selecting by multiple keys (indexing by a list of vectors) except we only supply one vector in the list.&lt;/p&gt;
-&lt;h4&gt;Index by a boolean vector (like data.frame) and DT[BOOLEAN COLUMN==TRUE] vs DT[BOOLEAN_COLUMN]&lt;/h4&gt;
-&lt;p&gt;&lt;em&gt;Indexing by a logical (boolean) vector &lt;/em&gt;
-With a standard data.frame, the main way to select rows with specific values is to pass a vector of booleans into the first position.  &lt;/p&gt;
+&lt;h4&gt;Index by a boolean vector (like data.frame)&lt;/h4&gt;
+&lt;p&gt;With a standard data.frame, the main way to select rows with specific values is to pass a vector of booleans into the first position.  &lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;DF[DF$A==5]
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -126,7 +125,7 @@ With a standard data.frame, the main way to select rows with specific values is 
 
 
 &lt;p&gt;This is useful when you want to subset by some calculation you have done elsewhere. Keep in mind you can do &lt;code&gt;DT[DT$A==5]&lt;/code&gt;, but this is generally not done since &lt;code&gt;DT&lt;/code&gt; is redundant.&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;DT[BOOLEAN_COLUMN==TRUE]  vs  DT[BOOLEAN_COLUMN]&lt;/em&gt;&lt;/p&gt;
+&lt;h4&gt;DT[BOOLEAN COLUMN==TRUE] vs DT[BOOLEAN_COLUMN]&lt;/h4&gt;
 &lt;p&gt;The first one works, the second will not. When I is a single variable name, data.table actually looks in the surround scope for the variable (this is what it does in the above example, &lt;code&gt;DT1[s]&lt;/code&gt; for the &lt;code&gt;s&lt;/code&gt; variable. This means you either have to directly compare to a boolean value, or use other &lt;a href="https://stackoverflow.com/questions/16191083/subset-data-table-by-logical-column"&gt;syntax tricks&lt;/a&gt;&lt;/p&gt;
 &lt;h1&gt;Other useful data.table links&lt;/h1&gt;
 &lt;ul&gt;
